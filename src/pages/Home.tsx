@@ -2,64 +2,75 @@ import { motion } from "motion/react";
 import { PROJECTS } from "../data/works";
 import { Link } from "react-router-dom";
 import { ExternalLink, Play } from "lucide-react";
+import ModelViewer from "../components/ModelViewer";
 
 export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden px-6">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/20 blur-[120px] rounded-full" />
+      <section className="relative h-screen flex items-center overflow-hidden px-6 pt-20">
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[800px] h-[800px] bg-purple-600/20 blur-[120px] rounded-full" />
         </div>
 
-        <div className="relative z-10 text-center max-w-4xl">
+        <div className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Left Side: Text */}
+          <div className="text-left pt-10 lg:pt-0">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="mb-6 inline-block"
+            >
+              <div className="bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest">
+                VFX Artist
+              </div>
+            </motion.div>
+
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+              className="text-7xl md:text-8xl lg:text-[10rem] font-display font-bold tracking-tighter mb-6 leading-[0.85]"
+            >
+              ATHUL<br/>
+              <span className="text-gradient">VIKRAM</span>
+            </motion.h1>
+
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+              className="text-lg md:text-xl text-zinc-400 font-light max-w-md leading-relaxed"
+            >
+              Crafting immersive digital worlds and cinematic visual effects using 
+              <span className="text-white font-medium"> Blender</span> and industry-standard tools.
+            </motion.p>
+          </div>
+
+          {/* Right Side: 3D Model */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            className="mb-8 relative inline-block"
+            transition={{ delay: 0.3, duration: 1 }}
+            className="relative h-[40vh] md:h-[50vh] lg:h-[80vh] w-full"
+            style={{ 
+              WebkitMaskImage: 'linear-gradient(to top, transparent 0%, black 15%, black 100%)',
+              maskImage: 'linear-gradient(to top, transparent 0%, black 15%, black 100%)'
+            }}
           >
-            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-2 border-purple-500/30 p-2 mx-auto overflow-hidden">
-              <img 
-                src="https://picsum.photos/seed/athul/400/400" 
-                alt="Athul Vikram" 
-                className="w-full h-full object-cover rounded-full grayscale hover:grayscale-0 transition-all duration-700"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-            <div className="absolute -bottom-2 -right-2 bg-purple-500 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-tighter">
-              VFX Artist
-            </div>
-          </motion.div>
-
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-6xl md:text-8xl font-display font-bold tracking-tighter mb-6"
-          >
-            ATHUL <span className="text-gradient">VIKRAM</span>
-          </motion.h1>
-
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-            className="text-xl md:text-2xl text-zinc-400 font-light max-w-2xl mx-auto leading-relaxed"
-          >
-            Crafting immersive digital worlds and cinematic visual effects using 
-            <span className="text-white font-medium"> Blender</span> and industry-standard tools.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="mt-12 animate-bounce text-zinc-500"
-          >
-            <div className="w-px h-12 bg-gradient-to-b from-purple-500 to-transparent mx-auto" />
+             <ModelViewer />
           </motion.div>
         </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-zinc-500 hidden lg:block"
+        >
+          <div className="w-px h-12 bg-gradient-to-b from-purple-500 to-transparent mx-auto" />
+        </motion.div>
       </section>
 
       {/* Works Grid */}
