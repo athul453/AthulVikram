@@ -8,21 +8,24 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center overflow-hidden px-6 pt-20">
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[800px] h-[800px] bg-purple-600/20 blur-[120px] rounded-full" />
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-6 pt-20">
+        
+        {/* Fullscreen 3D Background */}
+        <div className="absolute inset-0 z-0">
+          <ModelViewer />
+          {/* Subtle gradient overlay to ensure text legibility */}
+          <div className="absolute inset-0 bg-black/40 pointer-events-none" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left Side: Text */}
-          <div className="text-left pt-10 lg:pt-0">
+        {/* Foreground Content */}
+        <div className="relative z-10 text-center max-w-4xl mx-auto flex flex-col items-center pointer-events-none">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="mb-6 inline-block"
+              className="mb-8"
             >
-              <div className="bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest">
+              <div className="bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-bold px-4 py-2 rounded-full uppercase tracking-widest backdrop-blur-sm pointer-events-auto">
                 VFX Artist
               </div>
             </motion.div>
@@ -31,45 +34,30 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.8 }}
-              className="text-7xl md:text-8xl lg:text-[10rem] font-display font-bold tracking-tighter mb-6 leading-[0.85]"
+              className="text-6xl md:text-8xl lg:text-[10rem] font-display font-bold tracking-tighter mb-6 leading-[0.85] text-white drop-shadow-2xl"
             >
               ATHUL<br/>
-              <span className="text-gradient">VIKRAM</span>
+              <span className="text-gradient drop-shadow-2xl">VIKRAM</span>
             </motion.h1>
 
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
-              className="text-lg md:text-xl text-zinc-400 font-light max-w-md leading-relaxed"
+              className="text-xl md:text-2xl text-zinc-300 font-light max-w-2xl leading-relaxed drop-shadow-lg"
             >
               Crafting immersive digital worlds and cinematic visual effects using 
               <span className="text-white font-medium"> Blender</span> and industry-standard tools.
             </motion.p>
-          </div>
-
-          {/* Right Side: 3D Model */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3, duration: 1 }}
-            className="relative h-[40vh] md:h-[50vh] lg:h-[80vh] w-full"
-            style={{ 
-              WebkitMaskImage: 'linear-gradient(to top, transparent 0%, black 15%, black 100%)',
-              maskImage: 'linear-gradient(to top, transparent 0%, black 15%, black 100%)'
-            }}
-          >
-             <ModelViewer />
-          </motion.div>
         </div>
 
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-zinc-500 hidden lg:block"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-zinc-400 pointer-events-none"
         >
-          <div className="w-px h-12 bg-gradient-to-b from-purple-500 to-transparent mx-auto" />
+          <div className="w-px h-12 bg-gradient-to-b from-purple-400 to-transparent mx-auto" />
         </motion.div>
       </section>
 
