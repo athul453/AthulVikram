@@ -292,15 +292,15 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
           orbitRef.current.target.lerp(new THREE.Vector3(0, 0, 0), 3 * delta);
           state.camera.position.lerp(new THREE.Vector3(0, 1.6, -6.5), 3 * delta);
           
-          // CRITICAL FIX: Because OrbitControls drops its internal loop here, we MUST programmatically force the lens rotation matrix!
-          state.camera.lookAt(orbitRef.current.target);
+          // CRITICAL FIX: Synchronize internal OrbitControls spherical matrices perfectly so damping momentum doesn't override it!
+          orbitRef.current.update();
         } else {
            // HOMEPAGE: Completely rigidly locked as per user request!
            // Absolute mathematical clamp enforcing 100.00% pixel-perfect matching on Exit!
            const baseTarget = new THREE.Vector3(0, 0, 0);
            orbitRef.current.target.copy(baseTarget);
            state.camera.position.copy(new THREE.Vector3(0, 1.6, -6.5));
-           state.camera.lookAt(baseTarget);
+           orbitRef.current.update(); // Forces the internal engine to adopt the exact exact frame geometry!
         }
       }
     }

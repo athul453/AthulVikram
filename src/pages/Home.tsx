@@ -2,11 +2,15 @@ import { motion } from "motion/react";
 import { PROJECTS } from "../data/works";
 import { Link } from "react-router-dom";
 import { ExternalLink, Play } from "lucide-react";
-import ModelViewer from "../components/ModelViewer";
 import { useProgress } from "@react-three/drei";
+import ModelViewer from "../components/ModelViewer";
 import { useState, useEffect } from "react";
 
 export default function Home() {
+  const { progress } = useProgress();
+  const [modelMounted, setModelMounted] = useState(false);
+  const isLoaded = progress === 100 && modelMounted;
+  
   const [drivingMode, setDrivingMode] = useState(false);
 
   useEffect(() => {
@@ -73,7 +77,18 @@ export default function Home() {
           {/* Subtle fade to smoothly transition the black background to the 3D scene (Hidden when full screen) */}
           <div className={`absolute inset-y-0 left-0 w-48 bg-gradient-to-r from-[#0a0a0a] to-transparent pointer-events-none z-10 hidden md:block transition-opacity duration-1000 ${drivingMode ? 'opacity-0' : 'opacity-100'}`} />
           
-          <ModelViewer />
+          {/* Dedicated sleek loading indicator for the 3D Model so it doesn't look broken while parsing 50MB! */}
+          <div className={`absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-[1500ms] ${isLoaded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div className="w-12 h-12 border-2 border-purple-500/20 border-t-purple-500 rounded-full animate-spin mb-6" />
+            <div className="text-purple-400 font-bold text-xs tracking-[0.2em] animate-pulse">
+              INITIALIZING 3D ENGINE...
+            </div>
+            <div className="text-white/40 text-[10px] tracking-widest font-mono mt-3">
+              {Math.floor(progress)}%
+            </div>
+          </div>
+          
+          <ModelViewer onLoaded={() => setModelMounted(true)} />
         </div>
 
         {/* Scroll Indicator */}
