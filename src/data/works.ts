@@ -12,7 +12,7 @@ export interface Project {
 export const PROJECTS: Project[] = [
   {
     id: "cyber-city",
-    title: "Cyberpunk Cityscape",
+    title: "Blender VFX",
     description: "A futuristic city environment with dynamic lighting and volumetric fog.",
     thumbnail: "https://picsum.photos/seed/cyber/800/450",
     videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Placeholder
@@ -22,7 +22,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: "nature-vfx",
-    title: "Organic Growth Simulation",
+    title: "Blender animation and CGI work",
     description: "Time-lapse growth of alien flora using procedural animation.",
     thumbnail: "https://picsum.photos/seed/nature/800/450",
     videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
@@ -32,7 +32,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: "space-battle",
-    title: "Deep Space Engagement",
+    title: "prisma 3D (mobile animation )",
     description: "Cinematic space battle featuring complex particle systems and explosions.",
     thumbnail: "https://picsum.photos/seed/space/800/450",
     videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",

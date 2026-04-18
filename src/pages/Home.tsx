@@ -106,8 +106,7 @@ export default function Home() {
       <section id="works" className="py-20 px-6 max-w-7xl mx-auto">
         <div className="flex items-end justify-between mb-16">
           <div>
-            <h2 className="text-4xl font-display font-bold mb-2">SELECTED WORKS</h2>
-            <p className="text-zinc-500">A collection of my recent VFX and 3D projects.</p>
+            <h2 className="text-4xl font-display font-bold">SELECTED WORKS</h2>
           </div>
           <div className="hidden md:block text-xs uppercase tracking-widest text-zinc-600 font-bold">
             Scroll to explore
@@ -118,6 +117,7 @@ export default function Home() {
           {PROJECTS.map((project, index) => (
             <motion.div
               key={project.id}
+              className="h-full"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -125,7 +125,7 @@ export default function Home() {
             >
               <Link 
                 to={`/project/${project.id}`}
-                className="group block glass rounded-2xl overflow-hidden hover:border-purple-500/40 transition-all duration-500"
+                className="group h-full flex flex-col glass rounded-2xl overflow-hidden hover:border-purple-500/40 transition-all duration-500"
               >
                 <div className="aspect-video overflow-hidden relative">
                   <img 
@@ -140,22 +140,12 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-xl font-display font-bold group-hover:text-purple-400 transition-colors">
+                <div className="p-5">
+                  <div className="flex items-start justify-between">
+                    <h3 className="text-2xl font-display font-bold group-hover:text-purple-400 transition-colors">
                       {project.title}
                     </h3>
-                    <ExternalLink className="w-4 h-4 text-zinc-600 group-hover:text-purple-400" />
-                  </div>
-                  <p className="text-sm text-zinc-400 line-clamp-2 leading-relaxed">
-                    {project.description}
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {project.softwares.slice(0, 2).map((s) => (
-                      <span key={s} className="text-[10px] uppercase tracking-widest text-zinc-500 font-bold">
-                        {s}
-                      </span>
-                    ))}
+                    <ExternalLink className="w-5 h-5 text-zinc-600 group-hover:text-purple-400 mt-1 shrink-0 ml-3" />
                   </div>
                 </div>
               </Link>
