@@ -37,7 +37,13 @@ export default function ProjectDetail() {
     const x = e.pageX - carouselRef.current.offsetLeft;
     const walk = Math.abs(x - startX);
     if (walk < 5) {
-      setActiveVideo(index); // Explicit click triggers autoplay!
+      setActiveVideo(index);
+      setActiveBreakdown(false); // Mutual Exclusion
+      setTimeout(() => {
+        if (carouselRef.current && carouselRef.current.children[index]) {
+          carouselRef.current.children[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+      }, 50);
     }
   };
 
@@ -65,28 +71,32 @@ export default function ProjectDetail() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen pt-12 pb-12 px-6 max-w-6xl mx-auto"
+      className="h-screen w-full overflow-hidden flex flex-col pt-6 pb-6 px-4 md:px-8 max-w-[1600px] mx-auto"
     >
-      <div className="w-full">
+      {/* Slim Horizontal Header (Never Scrolls) */}
+      <div className="flex items-center justify-between flex-none mb-6">
         <button 
           onClick={() => navigate("/")}
-          className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors mb-6 group"
+          className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors group flex-none"
         >
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-          Back to Gallery
+          <span className="hidden sm:inline">Back</span>
         </button>
-
-        {/* Centered Massive Title from Mockup */}
-        <h1 className="text-4xl md:text-6xl lg:text-[5rem] text-center font-display font-bold mb-10 tracking-tight">
+        
+        <h1 className="text-2xl md:text-4xl lg:text-5xl text-center font-display font-bold tracking-tight px-4 truncate">
           {project.title}
         </h1>
+        
+        <div className="w-20 hidden sm:block flex-none" /> {/* Symmetrical Spacer */}
+      </div>
 
-        <div className="space-y-12">
-            {/* Final Render Carousel */}
-            <section>
-              <h2 className="text-3xl font-display font-medium mb-8 flex items-center gap-3">
-                <Play className="text-purple-500 w-8 h-8" /> Final Render
-              </h2>
+      {/* Dynamic Split-Screen Vertical Flexboard */}
+      <div className="flex-1 flex flex-col gap-6 min-h-0">
+          {/* Final Render Carousel Split */}
+          <section className={`flex flex-col min-h-0 transition-all duration-700 ease-in-out ${activeVideo !== null ? 'flex-[3]' : activeBreakdown ? 'flex-[0.5] opacity-50' : 'flex-1'}`}>
+            <h2 className="text-xl md:text-2xl font-display font-medium mb-3 flex items-center gap-3 flex-none pl-2">
+              <Play className="text-purple-500 w-5 h-5 md:w-6 md:h-6" /> Final Render
+            </h2>
               
               <div 
                 ref={carouselRef}
@@ -101,7 +111,7 @@ export default function ProjectDetail() {
                   <div 
                     key={idx}
                     onMouseUp={(e) => handleMouseUp(e, idx)}
-                    className={`relative flex-none snap-center aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group transition-all duration-700 ease-out select-none ${activeVideo === idx ? 'w-[min(90vw,120vh)]' : 'w-[min(75vw,60vh)] md:w-[450px]'}`}
+                    className={`relative flex-none snap-center aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group transition-all duration-700 ease-out select-none ${activeVideo === idx ? 'h-full max-h-[85vh]' : 'h-full max-h-[200px] md:max-h-[300px]'}`}
                   >
                     {slot.url ? (
                       activeVideo === idx ? (
@@ -148,16 +158,20 @@ export default function ProjectDetail() {
               </div>
             </section>
 
-            {/* Process Breakdown (Dynamic Sub-Video) */}
-            <section className="pb-10">
-              <h2 className="text-2xl md:text-3xl font-display font-medium mb-6 flex items-center gap-3">
-                <Layers className="text-purple-500 w-6 h-6 md:w-8 md:h-8" /> Process Breakdown
-              </h2>
-              {/* Expandable active state mathematically scaled securely inside 100vh! */}
-              <div 
-                className={`relative aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] transition-all duration-700 ease-out ${activeBreakdown ? 'w-[min(90vw,120vh)]' : 'w-full lg:max-w-[500px]'}`}
-                onClick={() => setActiveBreakdown(true)}
-              >
+          {/* Process Breakdown Split */}
+          <section className={`flex flex-col min-h-0 transition-all duration-700 ease-in-out pb-4 ${activeBreakdown ? 'flex-[3]' : activeVideo !== null ? 'flex-[0.5] opacity-50' : 'flex-1'}`}>
+            <h2 className="text-xl md:text-2xl font-display font-medium mb-3 flex items-center gap-3 flex-none pl-2">
+              <Layers className="text-purple-500 w-5 h-5 md:w-6 md:h-6" /> Process Breakdown
+            </h2>
+            
+            {/* Expandable active state bounded by purely flex height! */}
+            <div 
+              className={`relative aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] transition-all duration-700 ease-out self-start ${activeBreakdown ? 'h-full max-h-[85vh]' : 'h-full max-h-[200px] md:max-h-[300px]'}`}
+              onClick={() => {
+                setActiveBreakdown(true);
+                setActiveVideo(null); // Mutual Exclusion
+              }}
+            >
                 {activeBreakdown ? (
                   <iframe 
                     src={getAutoplayUrl(project.breakdownUrl)} 
@@ -183,8 +197,7 @@ export default function ProjectDetail() {
                   </>
                 )}
               </div>
-            </section>
-        </div>
+          </section>
       </div>
     </motion.div>
   );
