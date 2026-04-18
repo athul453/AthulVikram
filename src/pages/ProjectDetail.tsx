@@ -93,7 +93,7 @@ export default function ProjectDetail() {
                 onMouseLeave={handleMouseLeave}
                 onMouseUp={() => setIsDragging(false)}
                 onMouseMove={handleMouseMove}
-                className="flex overflow-x-auto snap-x snap-mandatory gap-8 pb-8 w-full hide-scrollbar items-center cursor-grab active:cursor-grabbing"
+                className={`flex overflow-x-auto gap-8 pb-8 w-full hide-scrollbar items-center cursor-grab active:cursor-grabbing transition-all ${isDragging ? 'snap-none scroll-auto' : 'snap-x snap-mandatory scroll-smooth'}`}
               >
                 
                 {carouselSlots.map((slot, idx) => (
