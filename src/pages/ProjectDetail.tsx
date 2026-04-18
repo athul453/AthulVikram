@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { Link, useParams, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { PROJECTS } from "../data/works";
 import { ArrowLeft, Monitor, Play, Layers } from "lucide-react";
 
@@ -7,6 +8,10 @@ export default function ProjectDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const project = PROJECTS.find((p) => p.id === id);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   if (!project) return <div className="p-20 text-center">Project not found</div>;
 
