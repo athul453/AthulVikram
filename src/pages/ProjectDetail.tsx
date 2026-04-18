@@ -106,11 +106,12 @@ export default function ProjectDetail() {
                       activeVideo === idx ? (
                         /* ACTIVE PLAYING STATE: Iframe is completely open to user clicks/controls! */
                         <>
-                          {/* Invisible Top Drag Handle allowing manual side-panning while playing! */}
-                          <div className="absolute top-0 left-0 right-0 bottom-16 z-20 cursor-grab active:cursor-grabbing" />
+                          {/* Top 65% Invisible Drag Handle safely avoiding fixed px conflicts with bottom controls! */}
+                          <div className="absolute top-0 left-0 right-0 h-[65%] z-20 cursor-grab active:cursor-grabbing" />
                           <iframe 
                             src={getAutoplayUrl(slot.url)} 
                             className="w-full h-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowFullScreen
                             title={`${project.title} Slot ${idx + 1}`}
                           />
@@ -122,6 +123,7 @@ export default function ProjectDetail() {
                           <iframe 
                             src={slot.url} 
                             className="w-full h-full pointer-events-none opacity-80"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowFullScreen
                             title={`${project.title} Slot ${idx + 1}`}
                           />
@@ -155,6 +157,7 @@ export default function ProjectDetail() {
                 <iframe 
                   src={project.breakdownUrl} 
                   className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
                   title={`${project.title} Breakdown`}
                 />
