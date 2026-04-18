@@ -62,22 +62,37 @@ export default function ProjectDetail() {
             </div>
           </section>
 
-          {/* Final Round Up Video */}
-          {project.roundupUrl && (
-            <section>
-              <h2 className="text-2xl font-display font-medium mb-6 flex items-center gap-3">
-                <Video className="text-purple-500" /> Final Round Up
-              </h2>
-              <div className="aspect-video glass rounded-2xl overflow-hidden shadow-2xl">
-                <iframe 
-                  src={project.roundupUrl} 
-                  className="w-full h-full"
-                  allowFullScreen
-                  title={`${project.title} Final Round Up`}
-                />
+          {/* Final Round Up - 3 Video Horizonatal Placholders */}
+          <section>
+            <h2 className="text-2xl font-display font-medium mb-6 flex items-center gap-3">
+              <Video className="text-purple-500" /> Final Round Up
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Video Box 1 */}
+              <div className="aspect-video glass rounded-xl overflow-hidden shadow-lg bg-[#050505]/80 border border-white/10 flex items-center justify-center group">
+                {project.roundupUrl ? (
+                  <iframe 
+                    src={project.roundupUrl} 
+                    className="w-full h-full"
+                    allowFullScreen
+                    title={`${project.title} Clip 1`}
+                  />
+                ) : (
+                  <div className="text-zinc-600 font-mono text-xs tracking-widest uppercase group-hover:text-purple-400/50 transition-colors">Clip Space 1</div>
+                )}
               </div>
-            </section>
-          )}
+
+              {/* Video Box 2 */}
+              <div className="aspect-video glass rounded-xl overflow-hidden shadow-lg bg-[#050505]/80 border border-white/10 flex items-center justify-center group">
+                <div className="text-zinc-600 font-mono text-xs tracking-widest uppercase group-hover:text-purple-400/50 transition-colors">Clip Space 2</div>
+              </div>
+
+              {/* Video Box 3 */}
+              <div className="aspect-video glass rounded-xl overflow-hidden shadow-lg bg-[#050505]/80 border border-white/10 flex items-center justify-center group">
+                <div className="text-zinc-600 font-mono text-xs tracking-widest uppercase group-hover:text-purple-400/50 transition-colors">Clip Space 3</div>
+              </div>
+            </div>
+          </section>
         </div>
 
         <aside className="space-y-10">
