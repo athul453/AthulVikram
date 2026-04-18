@@ -100,7 +100,7 @@ export default function ProjectDetail() {
                   <div 
                     key={idx}
                     onMouseUp={(e) => handleMouseUp(e, idx)}
-                    className="relative min-w-[85vw] md:min-w-[600px] lg:min-w-[750px] flex-none snap-center aspect-video glass rounded-2xl overflow-hidden shadow-2xl bg-[#050505]/80 border border-white/5 flex flex-col items-center justify-center group hover:border-purple-500/30 transition-all select-none"
+                    className="relative min-w-[85vw] md:min-w-[600px] lg:min-w-[750px] flex-none snap-center aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group transition-all select-none"
                   >
                     {slot.url ? (
                       activeVideo === idx ? (
@@ -153,7 +153,7 @@ export default function ProjectDetail() {
                 <Layers className="text-purple-500 w-8 h-8" /> Process Breakdown
               </h2>
               {/* Force identical width size for aesthetic symmetry */}
-              <div className="aspect-video glass rounded-2xl overflow-hidden shadow-2xl w-full lg:max-w-[1000px]">
+              <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] w-full lg:max-w-[1000px]">
                 <iframe 
                   src={project.breakdownUrl} 
                   className="w-full h-full"
