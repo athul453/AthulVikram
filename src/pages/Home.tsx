@@ -7,11 +7,6 @@ import { useProgress } from "@react-three/drei";
 import { useState, useEffect } from "react";
 
 export default function Home() {
-  const { progress } = useProgress();
-  // Force the HTML UI loading screen to strictly wait until the actual physical WebGL engine finishes rendering!
-  const [modelMounted, setModelMounted] = useState(false);
-  const isLoaded = progress === 100 && modelMounted;
-  
   const [drivingMode, setDrivingMode] = useState(false);
 
   useEffect(() => {
@@ -22,17 +17,7 @@ export default function Home() {
 
   return (
     <>
-      {/* Sleek Global Loading Screen to synchronize the 3D Model and DOM Text loading perfectly! */}
-      <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#050505] transition-opacity duration-1000 ${isLoaded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-        <div className="text-purple-400 font-bold text-2xl tracking-widest animate-pulse mb-4">
-          LOADING PORTFOLIO
-        </div>
-        <div className="text-white/50 text-sm tracking-widest font-mono">
-          {Math.floor(progress)}%
-        </div>
-      </div>
-
-      <div className={`min-h-screen transition-opacity duration-[1500ms] ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+      <div className="min-h-screen">
         
         {/* Cancel Driving Button Overlay */}
         <button
@@ -88,7 +73,7 @@ export default function Home() {
           {/* Subtle fade to smoothly transition the black background to the 3D scene (Hidden when full screen) */}
           <div className={`absolute inset-y-0 left-0 w-48 bg-gradient-to-r from-[#0a0a0a] to-transparent pointer-events-none z-10 hidden md:block transition-opacity duration-1000 ${drivingMode ? 'opacity-0' : 'opacity-100'}`} />
           
-          <ModelViewer onLoaded={() => setModelMounted(true)} />
+          <ModelViewer />
         </div>
 
         {/* Scroll Indicator */}
