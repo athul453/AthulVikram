@@ -3,59 +3,100 @@ import { PROJECTS } from "../data/works";
 import { Link } from "react-router-dom";
 import { ExternalLink, Play } from "lucide-react";
 import ModelViewer from "../components/ModelViewer";
+import { useProgress } from "@react-three/drei";
+import { useState, useEffect } from "react";
 
 export default function Home() {
-  return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-6 pt-20">
-        
-        {/* Fullscreen 3D Background */}
-        <div className="absolute inset-0 z-0">
-          <ModelViewer />
-          {/* Subtle gradient overlay to ensure text legibility */}
-          <div className="absolute inset-0 bg-black/40 pointer-events-none" />
-        </div>
+  const { progress } = useProgress();
+  // Force the HTML UI loading screen to strictly wait until the actual physical WebGL engine finishes rendering!
+  const [modelMounted, setModelMounted] = useState(false);
+  const isLoaded = progress === 100 && modelMounted;
+  
+  const [drivingMode, setDrivingMode] = useState(false);
 
-        {/* Foreground Content */}
-        <div className="relative z-10 text-center max-w-4xl mx-auto flex flex-col items-center pointer-events-none">
+  useEffect(() => {
+    const handleDrive = () => setDrivingMode(true);
+    document.addEventListener('showDashboard', handleDrive);
+    return () => document.removeEventListener('showDashboard', handleDrive);
+  }, []);
+
+  return (
+    <>
+      {/* Sleek Global Loading Screen to synchronize the 3D Model and DOM Text loading perfectly! */}
+      <div className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#050505] transition-opacity duration-1000 ${isLoaded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        <div className="text-purple-400 font-bold text-2xl tracking-widest animate-pulse mb-4">
+          LOADING PORTFOLIO
+        </div>
+        <div className="text-white/50 text-sm tracking-widest font-mono">
+          {Math.floor(progress)}%
+        </div>
+      </div>
+
+      <div className={`min-h-screen transition-opacity duration-[1500ms] ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+        
+        {/* Cancel Driving Button Overlay */}
+        <button
+          onClick={() => {
+            setDrivingMode(false);
+            document.dispatchEvent(new Event('cancelDriving'));
+          }}
+          className={`fixed top-6 left-6 z-[100] bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white px-6 py-2 rounded-full font-bold tracking-wider uppercase transition-all duration-700 ${drivingMode ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10 pointer-events-none'}`}
+        >
+          &times; Exit Driving
+        </button>
+
+      {/* Hero Section Dynamic Layout */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0a0a0a]">
+        
+        {/* Typography Content (Centered) */}
+        <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-10 pointer-events-none transition-opacity duration-1000 ${drivingMode ? 'opacity-0' : 'opacity-100'}`}>
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: -30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               className="mb-8"
             >
-              <div className="bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-bold px-4 py-2 rounded-full uppercase tracking-widest backdrop-blur-sm pointer-events-auto">
+              <div className="inline-block bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-bold px-4 py-2 rounded-full uppercase tracking-widest backdrop-blur-sm pointer-events-auto">
                 VFX Artist
               </div>
             </motion.div>
 
+            {/* Changed to one continuous horizontal flow for the name */}
             <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.8 }}
-              className="text-6xl md:text-8xl lg:text-[10rem] font-display font-bold tracking-tighter mb-6 leading-[0.85] text-white drop-shadow-2xl"
+              className="text-5xl md:text-8xl lg:text-[9rem] font-display font-bold tracking-tighter mb-6 leading-none text-white drop-shadow-2xl flex flex-row gap-4 md:gap-8 justify-center"
             >
-              ATHUL<br/>
+              <span>ATHUL</span>
               <span className="text-gradient drop-shadow-2xl">VIKRAM</span>
             </motion.h1>
 
             <motion.p 
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
-              className="text-xl md:text-2xl text-zinc-300 font-light max-w-2xl leading-relaxed drop-shadow-lg"
+              className="text-xl md:text-2xl text-zinc-300 font-light max-w-xl leading-relaxed drop-shadow-lg mx-auto"
             >
               Crafting immersive digital worlds and cinematic visual effects using 
-              <span className="text-white font-medium"> Blender</span> and industry-standard tools.
+              <span className="text-white font-bold"> Blender</span> and industry-standard tools.
             </motion.p>
         </div>
 
+        {/* 3D GLB Model Focus (Smoothly transitions from Side View to Full Screen) */}
+        <div className={`absolute ${drivingMode ? 'inset-0 w-full h-full z-40 bg-[#0a0a0a]' : 'right-0 w-full md:w-1/2 h-[50vh] md:h-screen z-0'} transition-all duration-700 ease-in-out overflow-hidden`}>
+          {/* Subtle fade to smoothly transition the black background to the 3D scene (Hidden when full screen) */}
+          <div className={`absolute inset-y-0 left-0 w-48 bg-gradient-to-r from-[#0a0a0a] to-transparent pointer-events-none z-10 hidden md:block transition-opacity duration-1000 ${drivingMode ? 'opacity-0' : 'opacity-100'}`} />
+          
+          <ModelViewer onLoaded={() => setModelMounted(true)} />
+        </div>
+
+        {/* Scroll Indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-zinc-400 pointer-events-none"
+          className="absolute bottom-8 left-[25%] -translate-x-1/2 animate-bounce text-zinc-400 pointer-events-none hidden md:block"
         >
           <div className="w-px h-12 bg-gradient-to-b from-purple-400 to-transparent mx-auto" />
         </motion.div>
@@ -130,5 +171,6 @@ export default function Home() {
         </p>
       </footer>
     </div>
+    </>
   );
 }
