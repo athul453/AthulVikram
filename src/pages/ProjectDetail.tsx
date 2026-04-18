@@ -67,9 +67,9 @@ export default function ProjectDetail() {
             <h2 className="text-2xl font-display font-medium mb-6 flex items-center gap-3">
               <Video className="text-purple-500" /> Final Round Up
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 w-full hide-scrollbar">
               {/* Video Box 1 */}
-              <div className="aspect-video glass rounded-xl overflow-hidden shadow-lg bg-[#050505]/80 border border-white/10 flex items-center justify-center group">
+              <div className="min-w-full flex-none snap-center aspect-video glass rounded-2xl overflow-hidden shadow-2xl bg-[#050505]/80 border border-white/5 flex flex-col items-center justify-center group hover:border-purple-500/30 transition-all cursor-pointer">
                 {project.roundupUrl ? (
                   <iframe 
                     src={project.roundupUrl} 
@@ -78,18 +78,23 @@ export default function ProjectDetail() {
                     title={`${project.title} Clip 1`}
                   />
                 ) : (
-                  <div className="text-zinc-600 font-mono text-xs tracking-widest uppercase group-hover:text-purple-400/50 transition-colors">Clip Space 1</div>
+                  <>
+                    <Video className="w-8 h-8 text-zinc-700/50 mb-3 group-hover:text-purple-400 transition-colors" />
+                    <div className="text-zinc-600 font-bold text-sm tracking-widest uppercase group-hover:text-purple-400 transition-colors">+ UPLOAD CLIP 1</div>
+                  </>
                 )}
               </div>
 
               {/* Video Box 2 */}
-              <div className="aspect-video glass rounded-xl overflow-hidden shadow-lg bg-[#050505]/80 border border-white/10 flex items-center justify-center group">
-                <div className="text-zinc-600 font-mono text-xs tracking-widest uppercase group-hover:text-purple-400/50 transition-colors">Clip Space 2</div>
+              <div className="min-w-full flex-none snap-center aspect-video glass rounded-2xl overflow-hidden shadow-2xl bg-[#050505]/80 border border-white/5 flex flex-col items-center justify-center group hover:border-purple-500/30 transition-all cursor-pointer">
+                 <Video className="w-8 h-8 text-zinc-700/50 mb-3 group-hover:text-purple-400 transition-colors" />
+                 <div className="text-zinc-600 font-bold text-sm tracking-widest uppercase group-hover:text-purple-400 transition-colors">+ UPLOAD CLIP 2</div>
               </div>
 
               {/* Video Box 3 */}
-              <div className="aspect-video glass rounded-xl overflow-hidden shadow-lg bg-[#050505]/80 border border-white/10 flex items-center justify-center group">
-                <div className="text-zinc-600 font-mono text-xs tracking-widest uppercase group-hover:text-purple-400/50 transition-colors">Clip Space 3</div>
+              <div className="min-w-full flex-none snap-center aspect-video glass rounded-2xl overflow-hidden shadow-2xl bg-[#050505]/80 border border-white/5 flex flex-col items-center justify-center group hover:border-purple-500/30 transition-all cursor-pointer">
+                 <Video className="w-8 h-8 text-zinc-700/50 mb-3 group-hover:text-purple-400 transition-colors" />
+                 <div className="text-zinc-600 font-bold text-sm tracking-widest uppercase group-hover:text-purple-400 transition-colors">+ UPLOAD CLIP 3</div>
               </div>
             </div>
           </section>
