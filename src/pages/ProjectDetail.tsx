@@ -101,7 +101,7 @@ export default function ProjectDetail() {
                   <div 
                     key={idx}
                     onMouseUp={(e) => handleMouseUp(e, idx)}
-                    className={`relative flex-none snap-center aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group transition-all duration-700 ease-out select-none ${activeVideo === idx ? 'min-w-[90vw] md:min-w-[800px] lg:min-w-[1000px]' : 'min-w-[75vw] md:min-w-[400px] lg:min-w-[500px]'}`}
+                    className={`relative flex-none snap-center aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group transition-all duration-700 ease-out select-none ${activeVideo === idx ? 'w-[min(90vw,120vh)]' : 'w-[min(75vw,60vh)] md:w-[450px]'}`}
                   >
                     {slot.url ? (
                       activeVideo === idx ? (
@@ -153,9 +153,9 @@ export default function ProjectDetail() {
               <h2 className="text-2xl md:text-3xl font-display font-medium mb-6 flex items-center gap-3">
                 <Layers className="text-purple-500 w-6 h-6 md:w-8 md:h-8" /> Process Breakdown
               </h2>
-              {/* Expandable active state explicitly matched to carousel UX for consistency */}
+              {/* Expandable active state mathematically scaled securely inside 100vh! */}
               <div 
-                className={`relative aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] transition-all duration-700 ease-out w-full ${activeBreakdown ? 'lg:max-w-[1000px]' : 'lg:max-w-[500px]'}`}
+                className={`relative aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] transition-all duration-700 ease-out ${activeBreakdown ? 'w-[min(90vw,120vh)]' : 'w-full lg:max-w-[500px]'}`}
                 onClick={() => setActiveBreakdown(true)}
               >
                 {activeBreakdown ? (
