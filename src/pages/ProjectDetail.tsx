@@ -105,12 +105,16 @@ export default function ProjectDetail() {
                     {slot.url ? (
                       activeVideo === idx ? (
                         /* ACTIVE PLAYING STATE: Iframe is completely open to user clicks/controls! */
-                        <iframe 
-                          src={getAutoplayUrl(slot.url)} 
-                          className="w-full h-full"
-                          allowFullScreen
-                          title={`${project.title} Slot ${idx + 1}`}
-                        />
+                        <>
+                          {/* Invisible Top Drag Handle allowing manual side-panning while playing! */}
+                          <div className="absolute top-0 left-0 right-0 bottom-16 z-20 cursor-grab active:cursor-grabbing" />
+                          <iframe 
+                            src={getAutoplayUrl(slot.url)} 
+                            className="w-full h-full"
+                            allowFullScreen
+                            title={`${project.title} Slot ${idx + 1}`}
+                          />
+                        </>
                       ) : (
                         /* INACTIVE DRAGGABLE STATE: Iframe is shielded by transparent overlay! */
                         <>
