@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { PROJECTS } from "../data/works";
-import { ArrowLeft, Monitor, Play, Layers } from "lucide-react";
+import { ArrowLeft, Monitor, Play, Layers, Video } from "lucide-react";
 
 export default function ProjectDetail() {
   const { id } = useParams();
@@ -61,6 +61,23 @@ export default function ProjectDetail() {
               />
             </div>
           </section>
+
+          {/* Final Round Up Video */}
+          {project.roundupUrl && (
+            <section>
+              <h2 className="text-2xl font-display font-medium mb-6 flex items-center gap-3">
+                <Video className="text-purple-500" /> Final Round Up
+              </h2>
+              <div className="aspect-video glass rounded-2xl overflow-hidden shadow-2xl">
+                <iframe 
+                  src={project.roundupUrl} 
+                  className="w-full h-full"
+                  allowFullScreen
+                  title={`${project.title} Final Round Up`}
+                />
+              </div>
+            </section>
+          )}
         </div>
 
         <aside className="space-y-10">
