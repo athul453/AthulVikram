@@ -15,7 +15,7 @@ export const PROJECTS: Project[] = [
     id: "cyber-city",
     title: "Blender VFX",
     description: "A futuristic city environment with dynamic lighting and volumetric fog.",
-    thumbnail: "/images/1.png",
+    thumbnail: "/images/blender_vfx_new.jpeg",
     videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Placeholder
     breakdownUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Placeholder
     roundupUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Placeholder
@@ -26,7 +26,7 @@ export const PROJECTS: Project[] = [
     id: "nature-vfx",
     title: "Blender animation and CGI work",
     description: "Time-lapse growth of alien flora using procedural animation.",
-    thumbnail: "/images/2.png",
+    thumbnail: "/images/blender_anim_new.jpeg",
     videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     breakdownUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     roundupUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
@@ -37,7 +37,7 @@ export const PROJECTS: Project[] = [
     id: "space-battle",
     title: "prisma 3D (mobile animation )",
     description: "Cinematic space battle featuring complex particle systems and explosions.",
-    thumbnail: "/images/3.png",
+    thumbnail: "/images/prisma_3d_new.jpeg",
     videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     breakdownUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     roundupUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",

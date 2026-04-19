@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { ExternalLink, Play } from "lucide-react";
 import { useProgress } from "@react-three/drei";
 import ModelViewer from "../components/ModelViewer";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 
 export default function Home() {
   const { progress } = useProgress();
@@ -13,10 +13,29 @@ export default function Home() {
   
   const [drivingMode, setDrivingMode] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // Scroll Restoration Logic
+    const savedScroll = sessionStorage.getItem('home-scroll-pos');
+    if (savedScroll) {
+      // Give the DOM a tiny fraction to completely paint the layout dimensions
+      setTimeout(() => {
+        window.scrollTo({ top: parseInt(savedScroll, 10), behavior: 'instant' });
+      }, 50);
+    }
+
+    const handleScroll = () => {
+      sessionStorage.setItem('home-scroll-pos', window.scrollY.toString());
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    // Driving Event Subscriptions
     const handleDrive = () => setDrivingMode(true);
     document.addEventListener('showDashboard', handleDrive);
-    return () => document.removeEventListener('showDashboard', handleDrive);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('showDashboard', handleDrive);
+    };
   }, []);
 
   return (

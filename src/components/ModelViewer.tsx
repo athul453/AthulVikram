@@ -3,6 +3,7 @@ import { OrbitControls, Environment, ContactShadows, useGLTF, KeyboardControls, 
 import { Suspense, useRef, useEffect, useMemo, useState, useLayoutEffect } from "react";
 import * as THREE from "three";
 import { Physics, RigidBody, CuboidCollider } from "@react-three/rapier";
+import { SkeletonUtils } from "three-stdlib";
 
 const keyboardMap = [
   { name: "forward", keys: ["ArrowUp", "KeyW"] },
@@ -13,7 +14,8 @@ const keyboardMap = [
 
 // We pass an optional onLoaded callback into the custom model so we can notify the overarching loading screen when the WebGL geometry has officially materialized into visual existence!
 function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
-  const { scene, animations } = useGLTF("/wbe ntitled.glb");
+  const { scene: rawScene, animations } = useGLTF("/wbe ntitled.glb");
+  const scene = useMemo(() => SkeletonUtils.clone(rawScene), [rawScene]);
   const [, getKeys] = useKeyboardControls();
   const carRbRef = useRef<any>(null);
   const orbitRef = useRef<any>(null);
