@@ -185,7 +185,7 @@ export default function ProjectDetail() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="h-screen w-full overflow-y-auto flex flex-col pt-6 pb-6 px-4 md:px-8 max-w-[1600px] mx-auto"
+      className="h-screen w-full overflow-y-auto flex flex-col pt-[100px] md:pt-[120px] pb-6 px-4 md:px-8 max-w-[1600px] mx-auto"
     >
       <div className="flex items-center justify-between flex-none mb-6">
         <button 
