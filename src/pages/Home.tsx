@@ -1,56 +1,169 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { PROJECTS } from "../data/works";
 import { Link } from "react-router-dom";
-import { ExternalLink, Play, Cpu } from "lucide-react";
+import { ExternalLink, Play, Cpu, Camera, Eye } from "lucide-react";
 import { useProgress } from "@react-three/drei";
 import ModelViewer from "../components/ModelViewer";
 import { useState, useEffect, useLayoutEffect } from "react";
+import { useLenis } from "lenis/react";
 
 export default function Home() {
   const { progress } = useProgress();
   const [modelMounted, setModelMounted] = useState(false);
+  const [deferredMount, setDeferredMount] = useState(false);
   const isLoaded = progress === 100 && modelMounted;
   
   const [drivingMode, setDrivingMode] = useState(false);
+  const [exploreMode, setExploreMode] = useState(false);
+  const [cameraMode, setCameraMode] = useState<'chase'|'orbit'>('chase');
+  const [transitioning, setTransitioning] = useState(false);
+  const [transitionText, setTransitionText] = useState("Welcome to Athul's World");
+  const lenis = useLenis();
+
+  useEffect(() => {
+    // Critical Optimization: Defer the massive 67MB WebGL initialization until AFTER 
+    // the routing transition and Lenis scroll restoration completely finish (400ms)!
+    const t = setTimeout(() => setDeferredMount(true), 400);
+    return () => clearTimeout(t);
+  }, []);
 
   useLayoutEffect(() => {
-    // Scroll Restoration Logic
-    const savedScroll = sessionStorage.getItem('home-scroll-pos');
-    if (savedScroll) {
-      // Give the DOM a tiny fraction to completely paint the layout dimensions
-      setTimeout(() => {
-        window.scrollTo({ top: parseInt(savedScroll, 10), behavior: 'instant' });
-      }, 50);
+    // Disable native browser scroll restoration from violently resetting the page to 0 behind our backs!
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
     }
 
-    const handleScroll = () => {
-      sessionStorage.setItem('home-scroll-pos', window.scrollY.toString());
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Exact Pixel Scroll Restoration Logic
+    const savedScrollRaw = sessionStorage.getItem('home-scroll-pos');
+    if (savedScrollRaw) {
+      const savedScroll = parseInt(savedScrollRaw, 10);
+      
+      // Implement an aggressive multi-frame positional lock!
+      // Browsers inherently attempt to "help" by pulling the scrollbar up when they detect large DOM elements unmounting from a previous page.
+      // By tightly locking the coordinate execution sequentially across the exact duration of the transition, we totally immunize it!
+      const enforceLock = () => {
+        window.scrollTo({ top: savedScroll, behavior: 'instant' });
+        if (lenis) lenis.scrollTo(savedScroll, { immediate: true });
+      };
+
+      enforceLock();
+      requestAnimationFrame(enforceLock);
+      setTimeout(enforceLock, 50);
+      setTimeout(enforceLock, 150);
+      setTimeout(() => {
+        enforceLock();
+        sessionStorage.removeItem('home-scroll-pos');
+      }, 300);
+    }
 
     // Driving Event Subscriptions
-    const handleDrive = () => setDrivingMode(true);
+    const handleDrive = () => {
+      setDrivingMode(true);
+      setTransitionText("Welcome to Athul's World");
+      setTransitioning(true);
+      setTimeout(() => setTransitioning(false), 1500); // Create an immersive 1.5s blackout!
+    };
+    
+    // Reverse Return Subscriptions
+    const handleCancelDrive = () => {
+      setTransitionText("Returning to Port...");
+      setTransitioning(true);
+      setTimeout(() => {
+        setDrivingMode(false);
+        setTransitioning(false);
+      }, 1500); // Wait until securely under the pitch-black mask to dismantle the driving variables natively.
+    };
+
+    // Game Over Tracking
+    const handleGameOver = () => {
+      setTransitionText("GAME OVER");
+      setTransitioning(true); // Absolute cut to black exactly instantly!
+      
+      setTimeout(() => {
+        setTransitionText("Welcome to Athul's World"); // Reload the original game flow implicitly
+      }, 700);
+      
+      setTimeout(() => {
+        setTransitioning(false); // Drop the blackout to exactly reveal the physically reset race car natively!
+      }, 1500);
+    };
+
     document.addEventListener('showDashboard', handleDrive);
+    document.addEventListener('triggerReturnTransition', handleCancelDrive);
+    document.addEventListener('triggerGameOver', handleGameOver);
     
     return () => {
-      window.removeEventListener('scroll', handleScroll);
       document.removeEventListener('showDashboard', handleDrive);
+      document.removeEventListener('triggerReturnTransition', handleCancelDrive);
+      document.removeEventListener('triggerGameOver', handleGameOver);
     };
-  }, []);
+  }, [lenis]);
 
   return (
     <>
+      <AnimatePresence>
+        {transitioning && (
+           <motion.div 
+             // Use a perfect 'hard cut' to instantaneous solid black to completely swallow the camera pan!
+             initial={{ opacity: 1 }}
+             animate={{ opacity: 1 }}
+             exit={{ opacity: 0 }}
+             transition={{ duration: 0.8, ease: "easeInOut" }} // Extremely smooth 0.8s cinematic fade REVEAL
+             className="fixed inset-0 z-[1000] bg-black flex flex-col items-center justify-center pointer-events-none"
+           >
+              <motion.h1 
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="text-white text-3xl md:text-5xl font-display font-bold tracking-[0.2em] uppercase text-center px-4"
+              >
+                {transitionText}
+              </motion.h1>
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: "200px" }}
+                transition={{ delay: 0.6, duration: 0.8 }}
+                className="h-[2px] bg-purple-500 mt-6"
+              />
+           </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="min-h-screen">
         
         {/* Cancel Driving Button Overlay */}
         <button
           onClick={() => {
-            setDrivingMode(false);
-            document.dispatchEvent(new Event('cancelDriving'));
+            document.dispatchEvent(new Event('triggerReturnTransition')); // Dispatch cinematic exit mask!
+            setTimeout(() => document.dispatchEvent(new Event('cancelDriving')), 150); // Sever the physics link silently in the dark!
           }}
           className={`fixed top-6 left-6 z-[100] bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white px-6 py-2 rounded-full font-bold tracking-wider uppercase transition-all duration-700 ${drivingMode ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10 pointer-events-none'}`}
         >
           &times; Exit Driving
+        </button>
+
+        {/* Cancel Explore Button Overlay */}
+        <button
+          onClick={() => {
+            document.dispatchEvent(new Event('cancelExplore')); 
+            setExploreMode(false);
+          }}
+          className={`fixed top-6 left-6 z-[100] bg-white/10 hover:bg-white/20 backdrop-blur-md border border-fuchsia-500/50 text-white px-6 py-2 rounded-full font-bold tracking-wider uppercase transition-all duration-700 shadow-[0_0_15px_rgba(192,38,211,0.5)] ${exploreMode && !drivingMode && !transitioning ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10 pointer-events-none'}`}
+        >
+          &times; Exit Display
+        </button>
+
+        {/* Camera Switcher Button Overlay */}
+        <button
+          onClick={() => {
+            const nextMode = cameraMode === 'chase' ? 'orbit' : 'chase'; // Strictly simplified to 2 standard robust cameras!
+            setCameraMode(nextMode);
+            document.dispatchEvent(new CustomEvent('switchCamera', { detail: nextMode }));
+          }}
+          className={`fixed right-6 bottom-12 z-[100] bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white px-6 py-3 rounded-full font-bold tracking-[0.1em] uppercase transition-all duration-700 flex items-center gap-3 ${drivingMode ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10 pointer-events-none'}`}
+        >
+          <Camera size={20} />
+          {cameraMode} Cam
         </button>
 
       {/* Hero Section Dynamic Layout */}
@@ -89,6 +202,19 @@ export default function Home() {
               Crafting immersive digital worlds and cinematic visual effects using 
               <span className="text-white font-bold"> Blender</span> and industry-standard tools.
             </motion.p>
+            
+            <motion.button 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.8 }}
+              onClick={() => {
+                document.dispatchEvent(new Event('startExplore'));
+                setExploreMode(true);
+              }} 
+              className="mt-10 flex items-center justify-center gap-3 px-8 py-4 border border-white/20 bg-white/5 hover:bg-white/10 rounded-full text-white/80 hover:text-white pointer-events-auto text-sm font-bold uppercase tracking-widest transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:shadow-[0_0_30px_rgba(255,255,255,0.15)]"
+            >
+              <Eye size={18} /> Free Explore 3D Scene
+            </motion.button>
         </div>
 
         {/* 3D GLB Model Focus (Smoothly transitions from Side View to Full Screen) */}
@@ -107,7 +233,7 @@ export default function Home() {
             </div>
           </div>
           
-          <ModelViewer onLoaded={() => setModelMounted(true)} />
+          {deferredMount && <ModelViewer onLoaded={() => setModelMounted(true)} />}
         </div>
 
         {/* Scroll Indicator */}
@@ -153,6 +279,7 @@ export default function Home() {
             >
               <Link 
                 to={`/project/${project.id}`}
+                onClick={() => sessionStorage.setItem('home-scroll-pos', window.scrollY.toString())}
                 className="group h-full flex flex-col glass rounded-2xl overflow-hidden hover:border-purple-500/40 transition-all duration-500"
               >
                 <div className="aspect-video overflow-hidden relative">
