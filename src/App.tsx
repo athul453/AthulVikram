@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react
 import Home from "./pages/Home";
 import ProjectDetail from "./pages/ProjectDetail";
 import { motion, AnimatePresence } from "motion/react";
+import { ReactLenis } from "lenis/react";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -26,7 +27,8 @@ function AnimatedRoutes() {
 
 export default function App() {
   return (
-    <Router>
+    <ReactLenis root>
+      <Router>
       <div className="relative">
         {/* Navigation */}
         <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-8 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent backdrop-blur-sm">
@@ -41,6 +43,7 @@ export default function App() {
 
         <AnimatedRoutes />
       </div>
-    </Router>
+      </Router>
+    </ReactLenis>
   );
 }

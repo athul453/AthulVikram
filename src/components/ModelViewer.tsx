@@ -418,7 +418,7 @@ export default function ModelViewer({ onLoaded }: { onLoaded?: () => void }) {
         </div>
 
         {/* Elevated Perspective Camera: Lowered and brought much closer to match the screenshot's exact framing and cinematic tight FOV! */}
-        <Canvas shadows camera={{ position: [0, 1.6, -6.5], fov: 35 }}>
+        <Canvas shadows dpr={[1, 1.5]} gl={{ powerPreference: "high-performance" }} camera={{ position: [0, 1.6, -6.5], fov: 35 }}>
           <Suspense fallback={null}>
             {/* Increased ambient light so the laptop and LED screens are clearly visible! */}
             <ambientLight intensity={0.4} />
@@ -443,7 +443,7 @@ export default function ModelViewer({ onLoaded }: { onLoaded?: () => void }) {
               <CustomModel onLoaded={onLoaded} />
             </Physics>
             
-            <ContactShadows resolution={1024} scale={10} blur={2} opacity={0.4} far={10} color="#000000" />
+            <ContactShadows resolution={256} scale={10} blur={2.5} opacity={0.5} far={10} color="#000000" />
           </Suspense>
         </Canvas>
       </div>
