@@ -1,6 +1,7 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Environment, ContactShadows, useGLTF, KeyboardControls, useKeyboardControls, useAnimations, Html, Text } from "@react-three/drei";
+import { OrbitControls, Environment, ContactShadows, useGLTF, KeyboardControls, useKeyboardControls, useAnimations, Html, Text, Preload } from "@react-three/drei";
 import { Suspense, useRef, useEffect, useMemo, useState, useLayoutEffect } from "react";
+import { useInView } from "motion/react";
 import * as THREE from "three";
 import { Physics, RigidBody, CuboidCollider } from "@react-three/rapier";
 import { SkeletonUtils } from "three-stdlib";
@@ -480,6 +481,8 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
 }
 
 export default function ModelViewer({ onLoaded }: { onLoaded?: () => void }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(containerRef, { margin: "1200px" });
   const [dashboardVisible, setDashboardVisible] = useState(false);
   const [winVisible, setWinVisible] = useState(false);
 
@@ -509,7 +512,7 @@ export default function ModelViewer({ onLoaded }: { onLoaded?: () => void }) {
 
   return (
     <KeyboardControls map={keyboardMap}>
-      <div className="w-full h-full relative cursor-grab active:cursor-grabbing">
+      <div ref={containerRef} className="w-full h-full relative cursor-grab active:cursor-grabbing">
         <div className={`absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-2xl pointer-events-none z-50 text-white flex flex-col gap-3 transition-opacity duration-1000 ease-in-out ${dashboardVisible ? 'opacity-100' : 'opacity-0'}`}>
           <h3 className="text-sm font-black text-purple-400 tracking-widest mb-1 border-b border-purple-400/30 pb-1 uppercase text-center">Controls</h3>
           <div className="flex items-center gap-4">
@@ -549,7 +552,7 @@ export default function ModelViewer({ onLoaded }: { onLoaded?: () => void }) {
         </div>
 
         {/* Elevated Perspective Camera: Lowered and brought much closer to match the exact original framing natively! */}
-        <Canvas shadows dpr={[1, 1.5]} gl={{ powerPreference: "high-performance" }} camera={{ position: [0, 1.6, -6.5], fov: 35 }}>
+        <Canvas shadows dpr={[1, 1.5]} gl={{ powerPreference: "high-performance" }} camera={{ position: [0, 1.6, -6.5], fov: 35 }} frameloop={inView ? "always" : "never"}>
           <Suspense fallback={null}>
             {/* Increased ambient light so the laptop and LED screens are clearly visible! */}
             <ambientLight intensity={0.4} />
@@ -570,11 +573,12 @@ export default function ModelViewer({ onLoaded }: { onLoaded?: () => void }) {
             {/* Subtler environment map */}
             <Environment preset="city" background={false} />
             
-            <Physics>
+            <Physics paused={!inView}>
               <CustomModel onLoaded={onLoaded} />
             </Physics>
             
             <ContactShadows resolution={256} scale={10} blur={2.5} opacity={0.5} far={10} color="#000000" />
+            <Preload all />
           </Suspense>
         </Canvas>
       </div>

@@ -44,3 +44,10 @@ body {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Global scroll performance optimization:
+   Forces the browser to completely bypass hover-state calculations (like zoom transforms)
+   across all DOM nodes while the Lenis smooth scroller is actively in motion. */
+html.lenis-scrolling {
+  pointer-events: none !important;
+}
