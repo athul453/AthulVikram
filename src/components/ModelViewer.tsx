@@ -1,4 +1,4 @@
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Environment, ContactShadows, useGLTF, KeyboardControls, useKeyboardControls, useAnimations, Html, Text, Preload } from "@react-three/drei";
 import { Suspense, useRef, useEffect, useMemo, useState, useLayoutEffect } from "react";
 import { useInView } from "motion/react";
@@ -480,9 +480,18 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
   );
 }
 
+function ClockManager({ inView }: { inView: boolean }) {
+  const { clock } = useThree();
+  useEffect(() => {
+    if (inView) clock.start(); 
+    else clock.stop();
+  }, [inView, clock]);
+  return null;
+}
+
 export default function ModelViewer({ onLoaded }: { onLoaded?: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const inView = useInView(containerRef, { margin: "1200px" });
+  const inView = useInView(containerRef, { margin: "0px 0px 1000px 0px" });
   const [dashboardVisible, setDashboardVisible] = useState(false);
   const [winVisible, setWinVisible] = useState(false);
 
@@ -573,12 +582,13 @@ export default function ModelViewer({ onLoaded }: { onLoaded?: () => void }) {
             {/* Subtler environment map */}
             <Environment preset="city" background={false} />
             
-            <Physics paused={!inView}>
+            <Physics>
               <CustomModel onLoaded={onLoaded} />
             </Physics>
             
             <ContactShadows resolution={256} scale={10} blur={2.5} opacity={0.5} far={10} color="#000000" />
             <Preload all />
+            <ClockManager inView={inView} />
           </Suspense>
         </Canvas>
       </div>
