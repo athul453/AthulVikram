@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { PROJECTS } from "../data/works";
 import { Link } from "react-router-dom";
-import { ExternalLink, Play } from "lucide-react";
+import { ExternalLink, Play, Cpu } from "lucide-react";
 import { useProgress } from "@react-three/drei";
 import ModelViewer from "../components/ModelViewer";
 import { useState, useEffect, useLayoutEffect } from "react";
@@ -123,9 +123,18 @@ export default function Home() {
 
       {/* Works Grid */}
       <section id="works" className="py-20 px-6 max-w-7xl mx-auto">
-        <div className="flex items-end justify-between mb-16">
-          <div>
-            <h2 className="text-4xl font-display font-bold">SELECTED WORKS</h2>
+        <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 mb-16">
+          <div className="space-y-4">
+            <h2 className="text-4xl font-display font-bold flex flex-wrap items-center gap-4">
+              SELECTED WORKS
+              <span className="text-purple-500 md:ml-4">-</span>
+              <div className="flex items-center gap-3 px-5 py-2 rounded-full bg-zinc-900 border border-zinc-800 font-display text-lg md:text-2xl text-zinc-400 group cursor-default hover:border-purple-500/50 hover:bg-purple-500/10 transition-colors duration-500">
+                <Cpu className="w-6 h-6 md:w-8 md:h-8 text-purple-500" />
+                <span className="opacity-80 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  RENDER <span className="font-bold text-white group-hover:text-purple-300">i5 RTX 2050</span>
+                </span>
+              </div>
+            </h2>
           </div>
           <div className="hidden md:block text-xs uppercase tracking-widest text-zinc-600 font-bold">
             Scroll to explore
