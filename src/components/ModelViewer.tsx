@@ -12,6 +12,20 @@ const keyboardMap = [
   { name: "right", keys: ["ArrowRight", "KeyD"] },
 ];
 
+const getFinishLine = () => {
+    const dir = new THREE.Vector3(-1, 0, 0);
+    dir.applyEuler(new THREE.Euler(0, -Math.PI / 4, 0)).normalize();
+    const right = new THREE.Vector3().copy(dir).applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI / 2);
+    const start = new THREE.Vector3(1.5, 0, 0).add(dir.clone().multiplyScalar(-10));
+    const p1 = start.clone().add(dir.clone().multiplyScalar(50));
+    const p2 = p1.clone().add(right.clone().multiplyScalar(40)).add(dir.clone().multiplyScalar(50));
+    const p3 = p2.clone().add(right.clone().multiplyScalar(15)).add(dir.clone().multiplyScalar(80));
+    const p4 = p3.clone().sub(right.clone().multiplyScalar(50)).add(dir.clone().multiplyScalar(60));
+    const end = p4.clone().add(dir.clone().multiplyScalar(100));
+    return new THREE.CatmullRomCurve3([start, p1, p2, p3, p4, end]).getPointAt(1);
+};
+const staticFinishPos = getFinishLine();
+
 function TrackGenerator({ active }: { active: boolean }) {
   if (!active) return null;
 
@@ -122,15 +136,14 @@ function TrackGenerator({ active }: { active: boolean }) {
 }
 
 function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
-  const { scene: rawScene, animations } = useGLTF("/wbe ntitled.glb") as any;
+  const { scene: rawScene, animations } = useGLTF("/optimized_safe.glb") as any;
   const scene = useMemo(() => SkeletonUtils.clone(rawScene), [rawScene]);
-  const rootGroupRef = useRef<THREE.Group>(null);
+  const rootGroupRef = useRef<any>(null);
   const { actions } = useAnimations(animations, rootGroupRef);
-  const [cameraMode, setCameraMode] = useState<'chase' | 'orbit'>('chase');
-  const [exploreActive, setExploreActive] = useState(false);
   const [, getKeys] = useKeyboardControls();
   const carRbRef = useRef<any>(null);
   const orbitRef = useRef<any>(null);
+  const localCarOffset = useRef<THREE.Vector3 | null>(null);
   
   const position = [1.5, -2.0, 0];
   const rotation = [0, -Math.PI / 4, 0];
@@ -239,6 +252,9 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
       const preciseHomePos = { x: 1.5, y: -2.0, z: 0 };
       const preciseHomeRot = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, -Math.PI / 4, 0));
       if (carRbRef.current) {
+        // Violently suppress physics computations dynamically for 200ms! 
+        // This immunizes the car from gravity while React fully sequentially instantiates the massive rigid floor bounding boxes natively!
+        carRbRef.current.sleep();
         carRbRef.current.setTranslation(restCarPos.current || preciseHomePos, true);
         carRbRef.current.setRotation(restCarRot.current || { x: preciseHomeRot.x, y: preciseHomeRot.y, z: preciseHomeRot.z, w: preciseHomeRot.w }, true);
         carRbRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
@@ -249,29 +265,15 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
           w.spinAccumulator = 0;
           w.node.quaternion.copy(w.initialQuat);
         });
+        setTimeout(() => carRbRef.current?.wakeUp(), 200);
       }
-      isHoming.current = true;
-      setTimeout(() => { isHoming.current = false; }, 2000);
-    };
-    const handleSwitch = (e: any) => { setCameraMode(e.detail); };
-    
-    // Free Explore Handlers
-    const handleStartExplore = () => setExploreActive(true);
-    const handleCancelExplore = () => {
-      setExploreActive(false);
       isHoming.current = true;
       setTimeout(() => { isHoming.current = false; }, 2000);
     };
     
     document.addEventListener('cancelDriving', handleCancel);
-    document.addEventListener('switchCamera', handleSwitch);
-    document.addEventListener('startExplore', handleStartExplore);
-    document.addEventListener('cancelExplore', handleCancelExplore);
     return () => {
       document.removeEventListener('cancelDriving', handleCancel);
-      document.removeEventListener('switchCamera', handleSwitch);
-      document.removeEventListener('startExplore', handleStartExplore);
-      document.removeEventListener('cancelExplore', handleCancelExplore);
     };
   }, [wheels]);
 
@@ -335,8 +337,8 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
       const currentVel = carRbRef.current.linvel();
       const maxSteer = Math.PI / 5;
       let targetSteer = 0;
-      if (left) targetSteer = -maxSteer;
-      if (right) targetSteer = maxSteer;
+      if (left) targetSteer = maxSteer; // Inverted mapping for A key!
+      if (right) targetSteer = -maxSteer; // Inverted mapping for D key!
       steering.current = THREE.MathUtils.lerp(steering.current, targetSteer, 6 * delta);
       const rot = carRbRef.current.rotation();
       q.set(rot.x, rot.y, rot.z, rot.w);
@@ -359,40 +361,81 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
       
       const pos = carRbRef.current.translation();
       if (orbitRef.current) {
+        // Game Over - Respawner (Abyss trigger) 
+        if (pos.y < -5 && trackActive && !lockDriveInput.current) {
+          // Exiting driving mode seamlessly
+          setTrackActive(false);
+          tooltipClosed.current = false;
+          lockDriveInput.current = true;
+          document.dispatchEvent(new Event('cancelDriving'));
+          setTimeout(() => {
+            lockDriveInput.current = false;
+          }, 300);
+        }
+
         if (trackActive && !tooltipClosed.current) {
            orbitRef.current.target.copy(pos as any);
         } else if (trackActive) {
           if (!lastCarPos.current) lastCarPos.current = new THREE.Vector3(pos.x, pos.y, pos.z);
+
+          // Mathematically extract the true visual geometric centroid natively isolated from the RigidBody origin!
+          // We apply exactly 2.5 units of geometric Z translation statically to fix the inherited FBX offset flawlessly!
+          const activeOffset = new THREE.Vector3(0, 0, 2.5).applyQuaternion(q);
+          const trueCarPos = new THREE.Vector3(pos.x, pos.y, pos.z).add(activeOffset);
+          
+          // Victory Validate sequence!
+          if (trueCarPos.distanceTo(staticFinishPos) < 25.0 && !lockDriveInput.current) {
+             document.dispatchEvent(new Event('triggerWin'));
+             lockDriveInput.current = true;
+             
+             // Immediate return cleanly delegated natively to the global cancel event!
+             setTimeout(() => {
+                setTrackActive(false);
+                tooltipClosed.current = false;
+                document.dispatchEvent(new Event('cancelDriving'));
+                setTimeout(() => { lockDriveInput.current = false; }, 1000);
+             }, 100);
+          }
+
+          // Calculate travel distance to effortlessly blend the cinematic perspectives!
+          const dist = new THREE.Vector3(pos.x, pos.y, pos.z).distanceTo(new THREE.Vector3(1.5, -2.0, 0));
+          const blendFactor = THREE.MathUtils.smoothstep(dist, 2, 15);
+
+          // Initial Scenic/Diorama Camera: Glued to the cinematic perspective of the character at the desk natively!
+          const dioramaPos = new THREE.Vector3(0, 1.6, -6.5);
+          const dioramaTarget = new THREE.Vector3(Math.max(-20, pos.x * 0.4), 0, 0);
+
+          // Traditional Third-Person 'Chase Cam' strictly locked to the visually computed bounds!
           const baseForward = new THREE.Vector3(-1, 0, 0);
           const worldForward = baseForward.applyQuaternion(q).normalize();
-          if (cameraMode === 'chase') {
-             // Extremely tight wide camera flawlessly shadowing identically right behind the lambo!
-             const camOffset = worldForward.clone().multiplyScalar(-3.5).add(new THREE.Vector3(0, 1.2, 0));
-             const idealPos = new THREE.Vector3(pos.x, pos.y, pos.z).add(camOffset);
-             state.camera.position.lerp(idealPos, 0.15); 
-             
-             // Track identically ahead of the center chassis realistically!
-             const targetPos = new THREE.Vector3(pos.x, pos.y, pos.z).add(worldForward.clone().multiplyScalar(1.0).add(new THREE.Vector3(0, 0.5, 0)));
-             orbitRef.current.target.lerp(targetPos, 0.25);
-          } else if (cameraMode === 'orbit') {
-             const currentFrameLocation = new THREE.Vector3(pos.x, pos.y, pos.z);
-             const displacementDelta = new THREE.Vector3().subVectors(currentFrameLocation, lastCarPos.current);
-             state.camera.position.add(displacementDelta);
-             orbitRef.current.target.copy(currentFrameLocation);
-          }
+          const chaseOffset = worldForward.clone().multiplyScalar(-4.5).add(new THREE.Vector3(0, 1.5, 0));
+          const chasePos = trueCarPos.clone().add(chaseOffset);
+          
+          // Pure Velocity Anticipation: Cancels visual tracking lag flawlessly without causing hard physics judder shaking!
+          const vel = carRbRef.current.linvel();
+          const anticipation = new THREE.Vector3(vel.x, vel.y, vel.z).multiplyScalar(0.08);
+          const chaseTarget = trueCarPos.clone().add(new THREE.Vector3(0, 0.5, 0)).add(anticipation);
+
+          // Smooth AAA Mathematical Morph
+          const idealPos = dioramaPos.clone().lerp(chasePos, blendFactor);
+          const idealTarget = dioramaTarget.clone().lerp(chaseTarget, blendFactor);
+
+          // Velvety smooth elastic position tracking with crisp rigid-anticipation targeting! Removes 100% of shaking.
+          state.camera.position.lerp(idealPos, 4 * delta); 
+          orbitRef.current.target.lerp(idealTarget, 8 * delta);
+
           lastCarPos.current.copy(new THREE.Vector3(pos.x, pos.y, pos.z));
           orbitRef.current.update();
         } else if (isHoming.current) {
-          // Use fluid spherical continuous gliding specifically uniquely to mask transitions effectively natively!
-          orbitRef.current.target.lerp(new THREE.Vector3(0, 0, 0), 4 * delta);
-          state.camera.position.lerp(new THREE.Vector3(0, 1.6, -6.5), 4 * delta);
+          // Snap inherently perfectly into place exactly seamlessly behind the mask! 
+          orbitRef.current.target.copy(new THREE.Vector3(0, 0, 0));
+          state.camera.position.copy(new THREE.Vector3(0, 1.6, -6.5));
           orbitRef.current.update();
-        } else if (exploreActive) {
-           // FREE MODE Override: Zero tracking inherently applied. OrbitControls inherently handles absolute mathematical navigation correctly natively!
         } else {
+           // Widen the base default camera to beautifully frame BOTH the sitting character AND the car's entire profile flawlessly on page load!
            const baseTarget = new THREE.Vector3(0, 0, 0);
-           orbitRef.current.target.copy(baseTarget);
-           state.camera.position.copy(new THREE.Vector3(0, 1.6, -6.5));
+           orbitRef.current.target.lerp(baseTarget, 4 * delta);
+           state.camera.position.lerp(new THREE.Vector3(0, 1.6, -6.5), 4 * delta);
            orbitRef.current.update();
         }
       }
@@ -438,17 +481,29 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
 
 export default function ModelViewer({ onLoaded }: { onLoaded?: () => void }) {
   const [dashboardVisible, setDashboardVisible] = useState(false);
+  const [winVisible, setWinVisible] = useState(false);
+
   useEffect(() => {
     const handleShow = () => {
       setTimeout(() => setDashboardVisible(true), 1500);
       setTimeout(() => { setDashboardVisible(false); }, 5500);
     };
     const handleCancel = () => { setDashboardVisible(false); };
+    
+    let winTimeout: ReturnType<typeof setTimeout>;
+    const handleWin = () => {
+      setWinVisible(true);
+      winTimeout = setTimeout(() => { setWinVisible(false); }, 3000);
+    };
+
     document.addEventListener('showDashboard', handleShow);
     document.addEventListener('cancelDriving', handleCancel);
+    document.addEventListener('triggerWin', handleWin);
     return () => {
       document.removeEventListener('showDashboard', handleShow);
       document.removeEventListener('cancelDriving', handleCancel);
+      document.removeEventListener('triggerWin', handleWin);
+      clearTimeout(winTimeout);
     };
   }, []);
 
@@ -485,8 +540,15 @@ export default function ModelViewer({ onLoaded }: { onLoaded?: () => void }) {
             </div>
           </div>
         </div>
+        
+        {/* Cinematic YOU WIN overlay, visually tied cleanly to completion. Disappears naturally after 3 seconds. */}
+        <div className={`absolute inset-0 flex items-center justify-center pointer-events-none z-[80] transition-opacity duration-700 ease-in-out ${winVisible ? 'opacity-100' : 'opacity-0'}`}>
+           <h1 className="text-[10rem] font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 to-purple-600 uppercase tracking-tighter drop-shadow-[0_0_80px_rgba(192,38,211,0.6)] animate-pulse scale-110">
+             YOU WIN!
+           </h1>
+        </div>
 
-        {/* Elevated Perspective Camera: Lowered and brought much closer to match the screenshot's exact framing and cinematic tight FOV! */}
+        {/* Elevated Perspective Camera: Lowered and brought much closer to match the exact original framing natively! */}
         <Canvas shadows dpr={[1, 1.5]} gl={{ powerPreference: "high-performance" }} camera={{ position: [0, 1.6, -6.5], fov: 35 }}>
           <Suspense fallback={null}>
             {/* Increased ambient light so the laptop and LED screens are clearly visible! */}
@@ -521,4 +583,4 @@ export default function ModelViewer({ onLoaded }: { onLoaded?: () => void }) {
 }
 
 // Global optimization: starts downloading the 67MB asset immediately!
-useGLTF.preload("/wbe ntitled.glb");
+useGLTF.preload("/optimized_safe.glb");

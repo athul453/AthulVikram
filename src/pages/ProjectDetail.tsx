@@ -118,6 +118,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle }: { slot
               <>
                 <div className="absolute top-0 left-0 right-0 h-[65%] z-20 cursor-grab active:cursor-grabbing" />
                 <iframe 
+                  key={`active-iframe-${idx}`}
                   src={getAutoplayUrl(slot.url)} 
                   className="w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -129,6 +130,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle }: { slot
               <>
                 <div className="absolute inset-0 z-20 cursor-grab active:cursor-grabbing" />
                 <iframe 
+                  key={`idle-iframe-${idx}`}
                   src={slot.url} 
                   className="w-full h-full pointer-events-none opacity-80"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -161,7 +163,21 @@ export default function ProjectDetail() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+
+    // Actively intercept hardware popstate (Mouse Back Button)!
+    // If an embedded iframe mutated the history stack behind our backs, the browser won't organically 
+    // leave our page. If popstate executes and we're somehow still stuck on the project URL, forcefully extract to Home!
+    const handlePopState = () => {
+      setTimeout(() => {
+        if (window.location.pathname.includes('/project/')) {
+          navigate('/', { replace: true });
+        }
+      }, 0);
+    };
+    
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [navigate]);
 
   const [activeVideo, setActiveVideo] = useState<number | null>(null);
   const [activeBreakdown, setActiveBreakdown] = useState<number | null>(null);

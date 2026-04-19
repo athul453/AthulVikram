@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "motion/react";
 import { PROJECTS } from "../data/works";
 import { Link } from "react-router-dom";
-import { ExternalLink, Play, Cpu, Camera, Eye } from "lucide-react";
+import { ExternalLink, Play, Cpu, Eye } from "lucide-react";
 import { useProgress } from "@react-three/drei";
 import ModelViewer from "../components/ModelViewer";
 import { useState, useEffect, useLayoutEffect } from "react";
@@ -11,13 +11,18 @@ export default function Home() {
   const { progress } = useProgress();
   const [modelMounted, setModelMounted] = useState(false);
   const [deferredMount, setDeferredMount] = useState(false);
-  const isLoaded = progress === 100 && modelMounted;
+  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+  
+  // Latch the loading screen eternally true once it succeeds, preventing UI flashes during track unloads
+  if (progress === 100 && modelMounted && !hasInitiallyLoaded) {
+     setHasInitiallyLoaded(true);
+  }
+  const isLoaded = hasInitiallyLoaded;
   
   const [drivingMode, setDrivingMode] = useState(false);
-  const [exploreMode, setExploreMode] = useState(false);
-  const [cameraMode, setCameraMode] = useState<'chase'|'orbit'>('chase');
   const [transitioning, setTransitioning] = useState(false);
   const [transitionText, setTransitionText] = useState("Welcome to Athul's World");
+  const [isRestoring, setIsRestoring] = useState(!!sessionStorage.getItem('home-scroll-pos'));
   const lenis = useLenis();
 
   useEffect(() => {
@@ -53,7 +58,10 @@ export default function Home() {
       setTimeout(() => {
         enforceLock();
         sessionStorage.removeItem('home-scroll-pos');
+        setIsRestoring(false);
       }, 300);
+    } else {
+      setIsRestoring(false);
     }
 
     // Driving Event Subscriptions
@@ -61,7 +69,7 @@ export default function Home() {
       setDrivingMode(true);
       setTransitionText("Welcome to Athul's World");
       setTransitioning(true);
-      setTimeout(() => setTransitioning(false), 1500); // Create an immersive 1.5s blackout!
+      setTimeout(() => setTransitioning(false), 2500); // Expanded to 2.5s to fully mask the Canvas DOM fluid layout stretch visually
     };
     
     // Reverse Return Subscriptions
@@ -129,7 +137,7 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      <div className="min-h-screen">
+      <div className={`min-h-screen transition-opacity duration-300 ${isRestoring ? 'opacity-0' : 'opacity-100'}`}>
         
         {/* Cancel Driving Button Overlay */}
         <button
@@ -142,29 +150,7 @@ export default function Home() {
           &times; Exit Driving
         </button>
 
-        {/* Cancel Explore Button Overlay */}
-        <button
-          onClick={() => {
-            document.dispatchEvent(new Event('cancelExplore')); 
-            setExploreMode(false);
-          }}
-          className={`fixed top-6 left-6 z-[100] bg-white/10 hover:bg-white/20 backdrop-blur-md border border-fuchsia-500/50 text-white px-6 py-2 rounded-full font-bold tracking-wider uppercase transition-all duration-700 shadow-[0_0_15px_rgba(192,38,211,0.5)] ${exploreMode && !drivingMode && !transitioning ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-10 pointer-events-none'}`}
-        >
-          &times; Exit Display
-        </button>
 
-        {/* Camera Switcher Button Overlay */}
-        <button
-          onClick={() => {
-            const nextMode = cameraMode === 'chase' ? 'orbit' : 'chase'; // Strictly simplified to 2 standard robust cameras!
-            setCameraMode(nextMode);
-            document.dispatchEvent(new CustomEvent('switchCamera', { detail: nextMode }));
-          }}
-          className={`fixed right-6 bottom-12 z-[100] bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white px-6 py-3 rounded-full font-bold tracking-[0.1em] uppercase transition-all duration-700 flex items-center gap-3 ${drivingMode ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10 pointer-events-none'}`}
-        >
-          <Camera size={20} />
-          {cameraMode} Cam
-        </button>
 
       {/* Hero Section Dynamic Layout */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0a0a0a]">
@@ -203,22 +189,10 @@ export default function Home() {
               <span className="text-white font-bold"> Blender</span> and industry-standard tools.
             </motion.p>
             
-            <motion.button 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
-              onClick={() => {
-                document.dispatchEvent(new Event('startExplore'));
-                setExploreMode(true);
-              }} 
-              className="mt-10 flex items-center justify-center gap-3 px-8 py-4 border border-white/20 bg-white/5 hover:bg-white/10 rounded-full text-white/80 hover:text-white pointer-events-auto text-sm font-bold uppercase tracking-widest transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:shadow-[0_0_30px_rgba(255,255,255,0.15)]"
-            >
-              <Eye size={18} /> Free Explore 3D Scene
-            </motion.button>
         </div>
 
         {/* 3D GLB Model Focus (Smoothly transitions from Side View to Full Screen) */}
-        <div className={`absolute ${drivingMode ? 'inset-0 w-full h-full z-40 bg-[#0a0a0a]' : 'right-0 w-full md:w-1/2 h-[50vh] md:h-screen z-0'} transition-all duration-700 ease-in-out overflow-hidden`}>
+        <div className={`absolute ${drivingMode ? 'inset-0 w-full h-full z-40 bg-[#0a0a0a] transition-all duration-[1500ms]' : 'right-0 w-full md:w-1/2 h-[50vh] md:h-screen z-0 transition-none'} ease-in-out overflow-hidden`}>
           {/* Subtle fade to smoothly transition the black background to the 3D scene (Hidden when full screen) */}
           <div className={`absolute inset-y-0 left-0 w-48 bg-gradient-to-r from-[#0a0a0a] to-transparent pointer-events-none z-10 hidden md:block transition-opacity duration-1000 ${drivingMode ? 'opacity-0' : 'opacity-100'}`} />
           
