@@ -51,3 +51,21 @@ body {
 html.lenis-scrolling {
   pointer-events: none !important;
 }
+
+@keyframes charReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-char-reveal {
+  opacity: 0;
+  animation: charReveal 0.8s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+  will-change: opacity, transform;
+}
+

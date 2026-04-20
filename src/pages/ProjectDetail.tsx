@@ -156,28 +156,21 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle }: { slot
   );
 }
 
+import { useLenis } from "lenis/react";
+
 export default function ProjectDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const project = PROJECTS.find((p) => p.id === id);
+  const lenis = useLenis();
 
   useEffect(() => {
+    // Assert structural dominance over the physics engine upon route entry to ruthlessly snap directly to the absolute top of the layout!
+    if (lenis) {
+       lenis.scrollTo(0, { immediate: true, force: true });
+    }
     window.scrollTo(0, 0);
-
-    // Actively intercept hardware popstate (Mouse Back Button)!
-    // If an embedded iframe mutated the history stack behind our backs, the browser won't organically 
-    // leave our page. If popstate executes and we're somehow still stuck on the project URL, forcefully extract to Home!
-    const handlePopState = () => {
-      setTimeout(() => {
-        if (window.location.pathname.includes('/project/')) {
-          navigate('/', { replace: true });
-        }
-      }, 0);
-    };
-    
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [navigate]);
+  }, [navigate, lenis]);
 
   const [activeVideo, setActiveVideo] = useState<number | null>(null);
   const [activeBreakdown, setActiveBreakdown] = useState<number | null>(null);

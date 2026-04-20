@@ -3,29 +3,58 @@ import Home from "./pages/Home";
 import ProjectDetail from "./pages/ProjectDetail";
 import { motion, AnimatePresence } from "motion/react";
 import { ReactLenis } from "lenis/react";
-
 function AnimatedRoutes() {
   const location = useLocation();
+  const isHome = location.pathname === '/';
   
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={location.pathname}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
+    <>
+      {/* PERFECT VRAM RETENTION: Home NEVER unmounts! The 67MB model sits dormant in memory, mathematically eradicating the 800ms parsing lag. */}
+      <div 
+         style={{ 
+           opacity: isHome ? 1 : 0, 
+           visibility: isHome ? 'visible' : 'hidden', 
+           pointerEvents: isHome ? 'auto' : 'none',
+           transition: 'opacity 0.3s ease-in-out',
+           position: isHome ? 'relative' : 'fixed',
+           height: isHome ? 'auto' : '100vh',
+           overflow: isHome ? 'visible' : 'hidden',
+           top: 0,
+           left: 0,
+           width: '100%'
+         }}
       >
-        <Routes location={location}>
-          <Route path="/" element={<Home />} />
-          <Route path="/project/:id" element={<ProjectDetail />} />
-        </Routes>
-      </motion.div>
-    </AnimatePresence>
+        <Home />
+      </div>
+
+      {/* Exclusively animate sub-pages layered over the top */}
+      <AnimatePresence mode="wait">
+        {!isHome && (
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute top-0 left-0 w-full min-h-screen bg-[#0a0a0a] z-50"
+          >
+            <Routes location={location}>
+              <Route path="/project/:id" element={<ProjectDetail />} />
+            </Routes>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
 export default function App() {
+  // Globally crush Chromium's native Scroll Restoration so it cannot hijack 
+  // the Y-axis coordinates when triggered by a physical hardware mouse BACK button!
+  if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+    window.history.scrollRestoration = 'manual';
+  }
+
   return (
     <ReactLenis root>
       <Router>

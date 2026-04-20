@@ -1,21 +1,28 @@
 import { motion, AnimatePresence } from "motion/react";
 import { PROJECTS } from "../data/works";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ExternalLink, Play, Cpu, Eye } from "lucide-react";
 import { useProgress } from "@react-three/drei";
 import ModelViewer from "../components/ModelViewer";
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useLenis } from "lenis/react";
 
+let globalAppHasLoaded = false;
+
 export default function Home() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { progress } = useProgress();
-  const [modelMounted, setModelMounted] = useState(false);
+  const [modelMounted, setModelMounted] = useState(globalAppHasLoaded);
   const [deferredMount, setDeferredMount] = useState(false);
-  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false);
+  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(globalAppHasLoaded);
   
   // Latch the loading screen eternally true once it succeeds, preventing UI flashes during track unloads
-  if (progress === 100 && modelMounted && !hasInitiallyLoaded) {
-     setHasInitiallyLoaded(true);
+  if ((progress === 100 && modelMounted && !hasInitiallyLoaded) || globalAppHasLoaded) {
+     if (!globalAppHasLoaded) {
+       globalAppHasLoaded = true;
+       setHasInitiallyLoaded(true);
+     }
   }
   const isLoaded = hasInitiallyLoaded;
   
@@ -25,6 +32,9 @@ export default function Home() {
   const [isRestoring, setIsRestoring] = useState(!!sessionStorage.getItem('home-scroll-pos'));
   const lenis = useLenis();
 
+  const mountedAsLocked = useRef(!globalAppHasLoaded);
+  const [controlsLocked, setControlsLocked] = useState(!globalAppHasLoaded);
+
   useEffect(() => {
     // Critical Optimization: Defer the massive 67MB WebGL initialization until AFTER 
     // the routing transition and Lenis scroll restoration completely finish (400ms)!
@@ -32,7 +42,46 @@ export default function Home() {
     return () => clearTimeout(t);
   }, []);
 
+  // Strict Loading Lock: Completely disable scrolling and all physical mouse interactions 
+  // globally while the initial 3D GLB parsing and shader compilation dominates the thread!
+  useEffect(() => {
+    if (!isLoaded) {
+      setControlsLocked(true);
+      if (lenis) lenis.stop(); 
+    } else {
+      const delay = mountedAsLocked.current ? 800 : 0;
+      const t = setTimeout(() => {
+         setControlsLocked(false);
+         if (lenis) lenis.start();
+      }, delay);
+      return () => clearTimeout(t);
+    }
+  }, [isLoaded, lenis]);
+
+  const lastScrollPos = useRef(0);
+
+  useEffect(() => {
+    if (!lenis) return;
+    const handleScroll = (e: any) => {
+      // Unconditionally freeze the memory the moment we leave Home!
+      if (window.location.pathname === '/' || window.location.pathname === '') {
+        lastScrollPos.current = e.targetScroll || e.scroll || window.scrollY;
+      }
+    };
+    lenis.on('scroll', handleScroll);
+    return () => lenis.off('scroll', handleScroll);
+  }, [lenis]);
+
   useLayoutEffect(() => {
+    // Exact Pixel Scroll Tracking: Constantly maintain exactly where we are without spamming memory!
+    if (location.pathname !== '/') {
+      if (lastScrollPos.current > 0) {
+         // Lock the securely frozen prior scroll position!
+         sessionStorage.setItem('home-scroll-pos', lastScrollPos.current.toString());
+      }
+      return;
+    }
+
     // Disable native browser scroll restoration from violently resetting the page to 0 behind our backs!
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
@@ -41,25 +90,28 @@ export default function Home() {
     // Exact Pixel Scroll Restoration Logic
     const savedScrollRaw = sessionStorage.getItem('home-scroll-pos');
     if (savedScrollRaw) {
+      setIsRestoring(true); // Manually assert restoration since we don't remount natively
       const savedScroll = parseInt(savedScrollRaw, 10);
       
-      // Implement an aggressive multi-frame positional lock!
-      // Browsers inherently attempt to "help" by pulling the scrollbar up when they detect large DOM elements unmounting from a previous page.
-      // By tightly locking the coordinate execution sequentially across the exact duration of the transition, we totally immunize it!
-      const enforceLock = () => {
-        window.scrollTo({ top: savedScroll, behavior: 'instant' });
-        if (lenis) lenis.scrollTo(savedScroll, { immediate: true });
-      };
+      // Stop Lenis brutally to strip any stale momentum immediately
+      if (lenis) lenis.stop();
+      
+      // Force native browser rendering thread to exactly map the exact scroll vertical coordinate
+      window.scrollTo({ top: savedScroll, behavior: 'instant' });
 
-      enforceLock();
-      requestAnimationFrame(enforceLock);
-      setTimeout(enforceLock, 50);
-      setTimeout(enforceLock, 150);
-      setTimeout(() => {
-        enforceLock();
+      // Completely divorce the Lenis physics initialization from the React reflow synchronous lifecycle.
+      // We explicitly wait for the first physical render frame so the Browser ResizeObserver safely resolves the restored dimensions, 
+      // preventing Lenis from errantly clamping the scroll vector due to outdated bounds!
+      requestAnimationFrame(() => {
+        if (lenis) {
+           lenis.resize(); // Aggressively flush DOM metrics natively!
+           lenis.scrollTo(savedScroll, { immediate: true, force: true });
+           lenis.start();
+        }
+        
         sessionStorage.removeItem('home-scroll-pos');
         setIsRestoring(false);
-      }, 300);
+      });
     } else {
       setIsRestoring(false);
     }
@@ -105,10 +157,48 @@ export default function Home() {
       document.removeEventListener('triggerReturnTransition', handleCancelDrive);
       document.removeEventListener('triggerGameOver', handleGameOver);
     };
-  }, [lenis]);
+  }, [lenis, location.pathname]);
 
   return (
     <>
+      <AnimatePresence>
+        {!isLoaded && (
+          <motion.div
+            key="preloader"
+            initial={{ y: 0 }}
+            exit={{ y: "-100vh" }}
+            transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+            className="fixed inset-0 z-[2000] bg-[#0a0a0a] flex flex-col items-center justify-center"
+          >
+            <div className="flex overflow-hidden py-4">
+              {"PORTFOLIO".split("").map((char, index) => (
+                <span
+                  key={index}
+                  className="font-display font-bold text-5xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-400 animate-char-reveal"
+                  style={{ 
+                    letterSpacing: '0.15em',
+                    animationDelay: `${index * 0.08}s`
+                  }}
+                >
+                  {char}
+                </span>
+              ))}
+            </div>
+            
+            <div 
+               className="absolute bottom-10 flex items-center gap-3 opacity-0"
+               style={{ animation: 'charReveal 0.8s ease forwards 0.8s' }}
+            >
+              <div className="w-8 h-[1px] bg-purple-500/30" />
+              <div className="text-purple-400/50 font-mono text-[10px] tracking-[0.3em] font-bold uppercase shadow-purple-500/20 whitespace-nowrap">
+                 ATHUL VIKRAM
+              </div>
+              <div className="w-8 h-[1px] bg-purple-500/30" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {transitioning && (
            <motion.div 
@@ -137,7 +227,7 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      <div className={`min-h-screen transition-opacity duration-300 ${isRestoring ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`min-h-screen transition-opacity duration-300 ${isRestoring ? 'opacity-0' : 'opacity-100'} ${controlsLocked ? 'pointer-events-none' : ''}`}>
         
         {/* Cancel Driving Button Overlay */}
         <button
@@ -193,19 +283,8 @@ export default function Home() {
 
         {/* 3D GLB Model Focus (Smoothly transitions from Side View to Full Screen) */}
         <div className={`absolute ${drivingMode ? 'inset-0 w-full h-full z-40 bg-[#0a0a0a] transition-all duration-[1500ms]' : 'right-0 w-full md:w-1/2 h-[50vh] md:h-screen z-0 transition-none'} ease-in-out overflow-hidden`}>
-          {/* Subtle fade to smoothly transition the black background to the 3D scene (Hidden when full screen) */}
+          {/* Subtly transitions the black background to the 3D scene */}
           <div className={`absolute inset-y-0 left-0 w-48 bg-gradient-to-r from-[#0a0a0a] to-transparent pointer-events-none z-10 hidden md:block transition-opacity duration-1000 ${drivingMode ? 'opacity-0' : 'opacity-100'}`} />
-          
-          {/* Dedicated sleek loading indicator for the 3D Model so it doesn't look broken while parsing 50MB! */}
-          <div className={`absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-[1500ms] ${isLoaded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-            <div className="w-12 h-12 border-2 border-purple-500/20 border-t-purple-500 rounded-full animate-spin mb-6" />
-            <div className="text-purple-400 font-bold text-xs tracking-[0.2em] animate-pulse">
-              INITIALIZING 3D ENGINE...
-            </div>
-            <div className="text-white/40 text-[10px] tracking-widest font-mono mt-3">
-              {Math.floor(progress)}%
-            </div>
-          </div>
           
           {deferredMount && <ModelViewer onLoaded={() => setModelMounted(true)} />}
         </div>
@@ -245,26 +324,25 @@ export default function Home() {
           {PROJECTS.map((project, index) => (
             <motion.div
               key={project.id}
-              className="h-full"
-              initial={{ opacity: 0, y: 30 }}
+              className="h-full touch-pan-y"
+              initial={sessionStorage.getItem('home-scroll-pos') ? false : { opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
             >
-              <Link 
-                to={`/project/${project.id}`}
-                onClick={() => sessionStorage.setItem('home-scroll-pos', window.scrollY.toString())}
-                className="group h-full flex flex-col glass rounded-2xl overflow-hidden hover:border-purple-500/40 transition-all duration-500"
+              <div 
+                onClick={() => navigate(`/project/${project.id}`)}
+                className="group cursor-pointer h-full flex flex-col glass rounded-2xl overflow-hidden border border-white/5 hover:border-purple-500/40 transition-colors duration-500 select-none touch-pan-y"
               >
-                <div className="aspect-video overflow-hidden relative">
+                <div className="aspect-video overflow-hidden relative transform-gpu isolate">
                   <img 
                     src={project.thumbnail} 
                     alt={project.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 pointer-events-none will-change-transform translate-z-0"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white scale-75 group-hover:scale-100 transition-transform">
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none will-change-[opacity] translate-z-0">
+                    <div className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white scale-75 group-hover:scale-100 transition-transform will-change-transform translate-z-0">
                       <Play className="fill-current" />
                     </div>
                   </div>
@@ -277,7 +355,7 @@ export default function Home() {
                     <ExternalLink className="w-5 h-5 text-zinc-600 group-hover:text-purple-400 mt-1 shrink-0 ml-3" />
                   </div>
                 </div>
-              </Link>
+              </div>
             </motion.div>
           ))}
         </div>
