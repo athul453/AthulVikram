@@ -134,8 +134,9 @@ function TrackGenerator({ active }: { active: boolean }) {
           position={pad.position as any}
           rotation={[0, pad.heading, 0]}
           type="fixed"
-          friction={1.5}
-          restitution={0.2}
+          colliders="cuboid"
+          friction={0}
+          restitution={0}
         >
           <mesh receiveShadow>
             <boxGeometry args={[20, 0.1, 4]} />
@@ -672,8 +673,9 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
           <RigidBody
             ref={carRbRef}
             type="dynamic"
-            colliders="cuboid"
+            colliders="hull"
             mass={100}
+            friction={0}
             linearDamping={2}
             angularDamping={2}
             enabledRotations={[false, true, false]}
