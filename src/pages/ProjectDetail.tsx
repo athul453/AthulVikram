@@ -10,8 +10,15 @@ const getAutoplayUrl = (url: string) => {
   return url.includes("?") ? `${url}&autoplay=1` : `${url}?autoplay=1`;
 };
 
+const getThumbnailUrl = (url: string, fallback: string) => {
+  if (!url) return fallback;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? `https://img.youtube.com/vi/${match[2]}/maxresdefault.jpg` : fallback;
+};
+
 // Extracted Unified Carousel Component
-function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle }: { slots: any[], activeIndex: number | null, onSelect: (idx: number) => void, projectTitle: string }) {
+function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallbackThumbnail }: { slots: any[], activeIndex: number | null, onSelect: (idx: number) => void, projectTitle: string, fallbackThumbnail: string }) {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -61,8 +68,10 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle }: { slot
       const scrollStep = () => {
         if (carouselRef.current && scrollSpeed.current !== 0) {
           carouselRef.current.scrollLeft += scrollSpeed.current;
+          scrollAnimationFrame.current = requestAnimationFrame(scrollStep);
+        } else {
+          scrollAnimationFrame.current = null;
         }
-        scrollAnimationFrame.current = requestAnimationFrame(scrollStep);
       };
       scrollAnimationFrame.current = requestAnimationFrame(scrollStep);
     }
@@ -101,17 +110,23 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle }: { slot
       onMouseLeave={handleMouseLeave}
       onMouseUp={() => setIsDragging(false)}
       onMouseMove={handleMouseMove}
-      className={`flex flex-1 overflow-x-auto gap-8 pb-8 w-full hide-scrollbar items-center cursor-grab active:cursor-grabbing transition-all ${isDragging ? 'snap-none scroll-auto' : 'snap-x snap-mandatory scroll-smooth'}`}
+      onWheel={(e) => {
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+          e.stopPropagation();
+        }
+      }}
+      className={`flex flex-1 overflow-x-auto gap-8 pb-8 w-full hide-scrollbar items-center cursor-grab active:cursor-grabbing transition-all ${isDragging ? 'scroll-auto' : 'scroll-smooth'}`}
     >
       {slots.map((slot, idx) => (
         <motion.div 
           layout
           initial={false}
+          whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           style={{ willChange: "transform, width, height" }}
           key={idx}
           onMouseUp={(e) => handleMouseUp(e, idx)}
-          className={`relative flex-none shrink-0 snap-center aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${activeIndex === idx ? 'h-full min-h-[50vh] max-h-[85vh]' : 'h-full min-h-[200px] md:min-h-[300px] max-h-[200px] md:max-h-[300px]'}`}
+          className={`relative flex-none shrink-0 aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${activeIndex === idx ? 'h-full min-h-[50vh] max-h-[85vh]' : 'h-full min-h-[200px] md:min-h-[300px] max-h-[200px] md:max-h-[300px]'}`}
         >
           {slot.url ? (
             activeIndex === idx ? (
@@ -129,13 +144,10 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle }: { slot
             ) : (
               <>
                 <div className="absolute inset-0 z-20 cursor-grab active:cursor-grabbing" />
-                <iframe 
-                  key={`idle-iframe-${idx}`}
-                  src={slot.url} 
-                  className="w-full h-full pointer-events-none opacity-80"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  title={`${projectTitle} Slot ${idx + 1}`}
+                <img 
+                  src={getThumbnailUrl(slot.url, fallbackThumbnail)} 
+                  alt={slot.title}
+                  className="w-full h-full object-cover pointer-events-none opacity-80"
                 />
                 <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none bg-black/40 group-hover:bg-black/20 transition-all">
                    <div className="w-16 h-16 md:w-20 md:h-20 bg-purple-600/90 rounded-full flex items-center justify-center backdrop-blur-md shadow-2xl group-hover:scale-110 transition-transform">
@@ -198,7 +210,10 @@ export default function ProjectDetail() {
     >
       <div className="flex items-center justify-between flex-none mb-6">
         <button 
-          onClick={() => navigate("/")}
+          onClick={() => {
+            sessionStorage.setItem('home-scroll-pos', 'works');
+            navigate("/");
+          }}
           className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors group flex-none"
         >
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
@@ -225,6 +240,7 @@ export default function ProjectDetail() {
               activeIndex={activeVideo} 
               onSelect={(idx) => { setActiveVideo(idx); setActiveBreakdown(null); }} 
               projectTitle={project.title} 
+              fallbackThumbnail={project.thumbnail}
             />
           </motion.section>
 
@@ -242,6 +258,7 @@ export default function ProjectDetail() {
               activeIndex={activeBreakdown} 
               onSelect={(idx) => { setActiveBreakdown(idx); setActiveVideo(null); }} 
               projectTitle={project.title} 
+              fallbackThumbnail={project.thumbnail}
             />
           </motion.section>
       </div>

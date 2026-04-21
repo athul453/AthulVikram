@@ -445,6 +445,13 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
         }, 3000);
       }
 
+      // DEBUG: Log car position
+      if (!window.debugCounter) window.debugCounter = 0;
+      if (window.debugCounter++ % 60 === 0 && carRbRef.current) {
+        const p = carRbRef.current.translation();
+        console.log(`DEBUG CAR POS: X:${p.x.toFixed(2)} Y:${p.y.toFixed(2)} Z:${p.z.toFixed(2)}`);
+      }
+
       const { forward, backward, left, right } = getKeys();
       if (
         (forward || backward) &&
@@ -595,11 +602,11 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
             .lerp(chaseTarget, blendFactor);
 
           // Velvety smooth elastic position tracking with crisp rigid-anticipation targeting! Removes 100% of shaking.
-          state.camera.position.lerp(idealPos, 4 * delta);
-          orbitRef.current.target.lerp(idealTarget, 8 * delta);
+          state.camera.position.lerp(idealPos, Math.min(1, 4 * delta));
+          orbitRef.current.target.lerp(idealTarget, Math.min(1, 8 * delta));
+          state.camera.lookAt(orbitRef.current.target);
 
           lastCarPos.current.copy(new THREE.Vector3(pos.x, pos.y, pos.z));
-          orbitRef.current.update();
         } else if (isHoming.current) {
           // Snap inherently perfectly into place exactly seamlessly behind the mask!
           orbitRef.current.target.copy(new THREE.Vector3(0, 0, 0));
@@ -608,10 +615,10 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
         } else {
           // Widen the base default camera to beautifully frame BOTH the sitting character AND the car's entire profile flawlessly on page load!
           const baseTarget = new THREE.Vector3(0, 0, 0);
-          orbitRef.current.target.lerp(baseTarget, 4 * delta);
+          orbitRef.current.target.lerp(baseTarget, Math.min(1, 4 * delta));
           state.camera.position.lerp(
             new THREE.Vector3(0, 1.6, -6.5),
-            4 * delta,
+            Math.min(1, 4 * delta),
           );
           orbitRef.current.update();
         }
@@ -624,14 +631,14 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
       <OrbitControls
         ref={orbitRef}
         makeDefault
-        enabled={faded}
+        enabled={!trackActive && !isHoming.current}
         enableDamping
+        enableZoom={false}
         dampingFactor={0.05}
         maxPolarAngle={Math.PI / 2 + 0.15}
       />
       <group
         ref={rootGroupRef}
-        scale={scale}
         position={position as any}
         rotation={rotation as any}
         dispose={null}
@@ -643,20 +650,24 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
             friction={1.5}
             restitution={0.2}
           >
+            {/* Increase ground thickness and adjust offset slightly to ensure it seamlessly catches physics objects */}
             <CuboidCollider position={[0, -0.5, 0]} args={[500, 0.5, 500]} />
           </RigidBody>
         )}
         {envNodes.length > 0 && (
-          <group>
+          <group scale={scale}>
             {envNodes.map((node, i) => (
               <primitive key={`env-${i}`} object={node} />
             ))}
           </group>
         )}
-        {humanNodes.length > 0 &&
-          humanNodes.map((node, i) => (
-            <primitive key={`human-${i}`} object={node} />
-          ))}
+        {humanNodes.length > 0 && (
+          <group scale={scale}>
+            {humanNodes.map((node, i) => (
+              <primitive key={`human-${i}`} object={node} />
+            ))}
+          </group>
+        )}
         {carNodes.length > 0 && (
           <RigidBody
             ref={carRbRef}
@@ -667,9 +678,11 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
             angularDamping={2}
             enabledRotations={[false, true, false]}
           >
-            {carNodes.map((node, i) => (
-              <primitive key={`car-${i}`} object={node} />
-            ))}
+            <group scale={scale}>
+              {carNodes.map((node, i) => (
+                <primitive key={`car-${i}`} object={node} />
+              ))}
+            </group>
           </RigidBody>
         )}
       </group>

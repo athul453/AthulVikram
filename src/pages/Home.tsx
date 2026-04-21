@@ -75,10 +75,6 @@ export default function Home() {
   useLayoutEffect(() => {
     // Exact Pixel Scroll Tracking: Constantly maintain exactly where we are without spamming memory!
     if (location.pathname !== '/') {
-      if (lastScrollPos.current > 0) {
-         // Lock the securely frozen prior scroll position!
-         sessionStorage.setItem('home-scroll-pos', lastScrollPos.current.toString());
-      }
       return;
     }
 
@@ -90,28 +86,25 @@ export default function Home() {
     // Exact Pixel Scroll Restoration Logic
     const savedScrollRaw = sessionStorage.getItem('home-scroll-pos');
     if (savedScrollRaw) {
-      setIsRestoring(true); // Manually assert restoration since we don't remount natively
-      const savedScroll = parseInt(savedScrollRaw, 10);
+      setIsRestoring(true);
       
-      // Stop Lenis brutally to strip any stale momentum immediately
+      const worksSection = document.getElementById('works');
+      // Target the exact absolute top boundary of the container, minus 100px to perfectly clear the backdrop-blur fixed Nav Bar overlap
+      const savedScroll = worksSection ? worksSection.offsetTop - 100 : parseInt(savedScrollRaw, 10);
+      
       if (lenis) lenis.stop();
       
-      // Force native browser rendering thread to exactly map the exact scroll vertical coordinate
-      window.scrollTo({ top: savedScroll, behavior: 'instant' });
-
-      // Completely divorce the Lenis physics initialization from the React reflow synchronous lifecycle.
-      // We explicitly wait for the first physical render frame so the Browser ResizeObserver safely resolves the restored dimensions, 
-      // preventing Lenis from errantly clamping the scroll vector due to outdated bounds!
-      requestAnimationFrame(() => {
+      // Delay explicitly for outliving Chrome's synchronous hardware popstate clamp natively
+      setTimeout(() => {
+        window.scrollTo({ top: savedScroll, behavior: 'instant' });
         if (lenis) {
-           lenis.resize(); // Aggressively flush DOM metrics natively!
+           lenis.resize();
            lenis.scrollTo(savedScroll, { immediate: true, force: true });
            lenis.start();
         }
-        
         sessionStorage.removeItem('home-scroll-pos');
         setIsRestoring(false);
-      });
+      }, 50);
     } else {
       setIsRestoring(false);
     }
@@ -320,7 +313,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div id="project-cards-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {PROJECTS.map((project, index) => (
             <motion.div
               key={project.id}
@@ -331,7 +324,10 @@ export default function Home() {
               transition={{ delay: index * 0.1 }}
             >
               <div 
-                onClick={() => navigate(`/project/${project.id}`)}
+                onClick={() => {
+                  sessionStorage.setItem('home-scroll-pos', 'works');
+                  navigate(`/project/${project.id}`);
+                }}
                 className="group cursor-pointer h-full flex flex-col glass rounded-2xl overflow-hidden border border-white/5 hover:border-purple-500/40 transition-colors duration-500 select-none touch-pan-y"
               >
                 <div className="aspect-video overflow-hidden relative transform-gpu isolate">
