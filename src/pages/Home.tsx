@@ -308,7 +308,7 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="absolute bottom-8 left-[25%] -translate-x-1/2 animate-bounce text-zinc-400 pointer-events-none hidden md:block"
+          className={`absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-zinc-400 pointer-events-none hidden md:block transition-opacity duration-1000 ${drivingMode ? 'opacity-0' : 'opacity-100'}`}
         >
           <div className="w-px h-12 bg-gradient-to-b from-purple-400 to-transparent mx-auto" />
         </motion.div>
