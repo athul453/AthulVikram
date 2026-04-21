@@ -410,7 +410,8 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
   const q = new THREE.Quaternion();
 
   useFrame((state, delta) => {
-    if (mixerRef.current) mixerRef.current.update(delta);
+    const safeDelta = Math.min(delta, 0.1);
+    if (mixerRef.current) mixerRef.current.update(safeDelta);
     if (headBone && carRbRef.current && rootGroupRef.current) {
       const pos = carRbRef.current.translation();
       rootGroupRef.current.updateMatrixWorld(true);
@@ -477,14 +478,14 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
       const decel = 30;
       const maxSpeed = 50; // Dropped to 50 for controllable track handling gracefully
       if (forward)
-        speed.current = Math.min(speed.current + accel * delta, maxSpeed);
+        speed.current = Math.min(speed.current + accel * safeDelta, maxSpeed);
       else if (backward)
-        speed.current = Math.max(speed.current - accel * delta, -maxSpeed / 2);
+        speed.current = Math.max(speed.current - accel * safeDelta, -maxSpeed / 2);
       else {
         if (speed.current > 0)
-          speed.current = Math.max(0, speed.current - decel * delta);
+          speed.current = Math.max(0, speed.current - decel * safeDelta);
         if (speed.current < 0)
-          speed.current = Math.min(0, speed.current + decel * delta);
+          speed.current = Math.min(0, speed.current + decel * safeDelta);
       }
       speed.current = Math.max(-maxSpeed, Math.min(maxSpeed, speed.current));
       const currentVel = carRbRef.current.linvel();
@@ -495,14 +496,14 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
       steering.current = THREE.MathUtils.lerp(
         steering.current,
         targetSteer,
-        4 * delta, // Extremely organic smoothed lateral tire response!
+        4 * safeDelta, // Extremely organic smoothed lateral tire response!
       );
       const rot = carRbRef.current.rotation();
       q.set(rot.x, rot.y, rot.z, rot.w);
       v.set(-speed.current, 0, 0).applyQuaternion(q);
       
       // AAA Downforce: Aggressively pin the car to the flat track mathematically by strictly crushing upward bounce deflections!
-      const downforce = Math.min(0, currentVel.y - (30 * delta));
+      const downforce = Math.min(0, currentVel.y - (30 * safeDelta));
       carRbRef.current.setLinvel({ x: v.x, y: downforce, z: v.z }, true);
       
       const angularViscosity = speed.current * steering.current * 0.05; // Softer physics snap for AAA feel!
@@ -514,11 +515,11 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
         carNodesGroupRef.current.rotation.z = THREE.MathUtils.lerp(
           carNodesGroupRef.current.rotation.z,
           rollTarget,
-          8 * delta
+          8 * safeDelta
         );
       }
       
-      const wheelSpinDelta = -speed.current * delta * 1.5;
+      const wheelSpinDelta = -speed.current * safeDelta * 1.5;
       wheels.forEach((w) => {
         w.spinAccumulator += wheelSpinDelta;
         w.node.quaternion.copy(w.initialQuat);
@@ -609,8 +610,8 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
             .lerp(chaseTarget, blendFactor);
 
           // Velvety smooth elastic position tracking with crisp rigid-anticipation targeting! Removes 100% of shaking.
-          state.camera.position.lerp(idealPos, Math.min(1, 4 * delta));
-          orbitRef.current.target.lerp(idealTarget, Math.min(1, 8 * delta));
+          state.camera.position.lerp(idealPos, Math.min(1, 4 * safeDelta));
+          orbitRef.current.target.lerp(idealTarget, Math.min(1, 8 * safeDelta));
           state.camera.lookAt(orbitRef.current.target);
 
           lastCarPos.current.copy(new THREE.Vector3(pos.x, pos.y, pos.z));
@@ -622,10 +623,10 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
         } else {
           // Widen the base default camera to beautifully frame BOTH the sitting character AND the car's entire profile flawlessly on page load!
           const baseTarget = new THREE.Vector3(0, 0, 0);
-          orbitRef.current.target.lerp(baseTarget, Math.min(1, 4 * delta));
+          orbitRef.current.target.lerp(baseTarget, Math.min(1, 4 * safeDelta));
           state.camera.position.lerp(
             new THREE.Vector3(0, 1.6, -6.5),
-            Math.min(1, 4 * delta),
+            Math.min(1, 4 * safeDelta),
           );
           orbitRef.current.update();
         }

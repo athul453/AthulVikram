@@ -3,11 +3,15 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { PROJECTS } from "../data/works";
 import { ArrowLeft, Monitor, Play, Layers, Video } from "lucide-react";
+import { isMobileDevice } from "../utils/device";
 
-// Helper for autoplay
 const getAutoplayUrl = (url: string) => {
   if (!url) return "";
-  return url.includes("?") ? `${url}&autoplay=1` : `${url}?autoplay=1`;
+  let base = url.includes("?") ? `${url}&autoplay=1` : `${url}?autoplay=1`;
+  if (isMobileDevice()) {
+    base += "&playsinline=1&fs=0&mute=1&controls=0"; // Unlocks autoplay & removes UI blocker
+  }
+  return base;
 };
 
 const getThumbnailUrl = (url: string, fallback: string) => {
@@ -86,6 +90,11 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
       const walk = (x - startX) * 2;
       carouselRef.current.scrollLeft = scrollLeft - walk;
     } else {
+      if (isMobileDevice()) {
+        scrollSpeed.current = 0;
+        return;
+      }
+      
       const rect = carouselRef.current.getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
       const edgeThreshold = 180;
@@ -110,34 +119,48 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
       onMouseLeave={handleMouseLeave}
       onMouseUp={() => setIsDragging(false)}
       onMouseMove={handleMouseMove}
+      onTouchStart={() => { scrollSpeed.current = 0; setIsDragging(false); }}
+      onTouchEnd={() => { scrollSpeed.current = 0; }}
       onWheel={(e) => {
         if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
           e.stopPropagation();
         }
       }}
-      className={`flex flex-1 overflow-x-auto gap-8 pb-8 w-full hide-scrollbar items-center cursor-grab active:cursor-grabbing transition-all ${isDragging ? 'scroll-auto' : 'scroll-smooth'}`}
+      className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 pb-8 w-full hide-scrollbar items-center cursor-grab active:cursor-grabbing transition-all touch-pan-x ${isDragging ? 'scroll-auto' : 'md:scroll-smooth scroll-auto'} ${isMobileDevice() ? 'snap-x snap-mandatory px-4' : ''}`}
     >
-      {slots.map((slot, idx) => (
+      {slots.map((slot, idx) => {
+        const isMobile = isMobileDevice();
+        const isActive = activeIndex === idx;
+        const mobileClasses = `w-[85vw] snap-center snap-always transition-all duration-500 ease-out border ${isActive ? 'border-purple-500/50 shadow-[0_0_30px_rgba(192,38,211,0.3)] opacity-100 scale-100' : 'border-white/5 opacity-60 scale-[0.93] brightness-75'}`;
+        const desktopClasses = `${isActive ? 'h-full min-h-[50vh] max-h-[85vh]' : 'h-full min-h-[200px] md:min-h-[300px] max-h-[200px] md:max-h-[300px]'}`;
+
+        return (
         <motion.div 
           layout
           initial={false}
-          whileHover={{ scale: 1.02 }}
+          whileHover={!isMobile ? { scale: 1.02 } : undefined}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           style={{ willChange: "transform, width, height" }}
           key={idx}
           onMouseUp={(e) => handleMouseUp(e, idx)}
-          className={`relative flex-none shrink-0 aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${activeIndex === idx ? 'h-full min-h-[50vh] max-h-[85vh]' : 'h-full min-h-[200px] md:min-h-[300px] max-h-[200px] md:max-h-[300px]'}`}
+          onClick={(e) => {
+            if (isMobile && !isActive) {
+               onSelect(idx);
+               e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+            }
+          }}
+          className={`relative flex-none shrink-0 aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${isMobile ? mobileClasses : desktopClasses}`}
         >
           {slot.url ? (
             activeIndex === idx ? (
               <>
-                <div className="absolute top-0 left-0 right-0 h-[65%] z-20 cursor-grab active:cursor-grabbing" />
+                <div className={`absolute top-0 left-0 right-0 h-[65%] z-20 cursor-grab active:cursor-grabbing ${isMobile ? 'pointer-events-none' : ''}`} />
                 <iframe 
                   key={`active-iframe-${idx}`}
                   src={getAutoplayUrl(slot.url)} 
-                  className="w-full h-full"
+                  className={`w-full h-full ${isMobile ? 'pointer-events-none' : ''}`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
+                  allowFullScreen={!isMobile}
                   title={`${projectTitle} Slot ${idx + 1}`}
                 />
               </>
@@ -163,7 +186,8 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
             </>
           )}
         </motion.div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -230,7 +254,7 @@ export default function ProjectDetail() {
           <motion.section 
             layout
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col transition-opacity duration-700 ${activeVideo !== null ? 'flex-[3]' : activeBreakdown !== null ? 'flex-[0.5] opacity-50' : 'flex-1'}`}
+            className={`flex flex-col transition-opacity duration-700 ${isMobileDevice() ? 'flex-1 mb-8' : (activeVideo !== null ? 'flex-[3]' : activeBreakdown !== null ? 'flex-[0.5] opacity-50' : 'flex-1')}`}
           >
             <h2 className="text-xl md:text-2xl font-display font-medium mb-3 flex items-center gap-3 flex-none pl-2">
               <Play className="text-purple-500 w-5 h-5 md:w-6 md:h-6" /> Final Render
@@ -248,7 +272,7 @@ export default function ProjectDetail() {
           <motion.section 
             layout
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col transition-opacity duration-700 pb-4 ${activeBreakdown !== null ? 'flex-[3]' : activeVideo !== null ? 'flex-[0.5] opacity-50' : 'flex-1'}`}
+            className={`flex flex-col transition-opacity duration-700 pb-4 ${isMobileDevice() ? 'flex-1' : (activeBreakdown !== null ? 'flex-[3]' : activeVideo !== null ? 'flex-[0.5] opacity-50' : 'flex-1')}`}
           >
             <h2 className="text-xl md:text-2xl font-display font-medium mb-3 flex items-center gap-3 flex-none pl-2">
               <Layers className="text-purple-500 w-5 h-5 md:w-6 md:h-6" /> Process Breakdown
