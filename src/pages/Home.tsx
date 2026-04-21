@@ -34,6 +34,15 @@ export default function Home() {
 
   const mountedAsLocked = useRef(!globalAppHasLoaded);
   const [controlsLocked, setControlsLocked] = useState(!globalAppHasLoaded);
+  const [showSlowNetwork, setShowSlowNetwork] = useState(false);
+
+  useEffect(() => {
+    // If loading takes >8 seconds, show network warning
+    if (!isLoaded) {
+      const t = setTimeout(() => setShowSlowNetwork(true), 8000);
+      return () => clearTimeout(t);
+    }
+  }, [isLoaded]);
 
   useEffect(() => {
     // Critical Optimization: Defer the massive 67MB WebGL initialization until AFTER 
@@ -176,6 +185,18 @@ export default function Home() {
                   {char}
                 </span>
               ))}
+            </div>
+            
+            <div className="mt-8 flex flex-col items-center gap-4 w-48 md:w-64 opacity-0" style={{ animation: 'charReveal 0.8s ease forwards 0.8s' }}>
+                <div className="w-full h-[2px] bg-white/10 rounded-full overflow-hidden">
+                   <div 
+                     className="h-full bg-purple-500 rounded-full transition-all duration-300 ease-out"
+                     style={{ width: `${progress}%` }}
+                   />
+                </div>
+                <div className="text-zinc-500 font-mono text-[10px] tracking-widest uppercase h-4 flex items-center justify-center">
+                    {showSlowNetwork ? `Loading ${Math.round(progress)}% - Network is slow` : `Loading ${Math.round(progress)}%`}
+                </div>
             </div>
             
             <div 
