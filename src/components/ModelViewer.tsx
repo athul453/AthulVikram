@@ -673,7 +673,7 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
           <RigidBody
             ref={carRbRef}
             type="dynamic"
-            colliders="hull"
+            colliders="cuboid"
             mass={100}
             friction={0}
             linearDamping={2}
