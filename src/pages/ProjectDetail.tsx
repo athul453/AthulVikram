@@ -131,12 +131,12 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
         }
       }}
       data-lenis-prevent="true"
-      className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 pb-8 w-full hide-scrollbar items-center cursor-grab active:cursor-grabbing transition-all ${isDragging ? 'scroll-auto' : 'md:scroll-smooth scroll-auto'} ${isMobileDevice() ? 'snap-x px-4' : ''}`}
+      className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 pb-8 w-full hide-scrollbar items-center cursor-grab active:cursor-grabbing transition-all ${isDragging ? 'scroll-auto' : 'md:scroll-smooth scroll-auto'} ${isMobileDevice() ? 'px-4' : ''}`}
     >
       {slots.map((slot, idx) => {
         const isMobile = isMobileDevice();
         const isActive = activeIndex === idx;
-        const mobileClasses = `w-[85vw] snap-center snap-always transition-all duration-500 ease-out border ${isActive ? 'border-purple-500/50 shadow-[0_0_30px_rgba(192,38,211,0.3)] opacity-100 scale-100' : 'border-white/5 opacity-60 scale-[0.93] brightness-75'}`;
+        const mobileClasses = `w-[85vw] transition-all duration-500 ease-out border ${isActive ? 'border-purple-500/50 shadow-[0_0_30px_rgba(192,38,211,0.3)] opacity-100 scale-100' : 'border-white/5 opacity-60 scale-[0.93] brightness-75'}`;
         const desktopClasses = `${isActive ? 'h-full min-h-[50vh] max-h-[85vh]' : 'h-full min-h-[200px] md:min-h-[300px] max-h-[200px] md:max-h-[300px]'}`;
 
         return (
@@ -148,10 +148,9 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
           style={{ willChange: "transform, width, height" }}
           key={idx}
           onMouseUp={(e) => handleMouseUp(e, idx)}
-          onClick={(e) => {
+          onClick={() => {
             if (isMobile && !isActive) {
                onSelect(idx);
-               e.currentTarget.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'center' });
             }
           }}
           className={`relative flex-none shrink-0 aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${isMobile ? mobileClasses : desktopClasses}`}
@@ -235,7 +234,7 @@ export default function ProjectDetail() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen w-full flex flex-col pt-[100px] md:pt-[120px] pb-6 px-4 md:px-8 max-w-[1600px] mx-auto"
+      className={`w-full flex flex-col pt-[100px] md:pt-[120px] pb-6 px-4 md:px-8 max-w-[1600px] mx-auto ${isMobileDevice() ? 'h-[100dvh] overflow-hidden fixed inset-0' : 'min-h-screen'}`}
     >
       <div className="flex items-center justify-between flex-none mb-6">
         <button 
