@@ -9,7 +9,7 @@ const getAutoplayUrl = (url: string) => {
   if (!url) return "";
   let base = url.includes("?") ? `${url}&autoplay=1` : `${url}?autoplay=1`;
   if (isMobileDevice()) {
-    base += "&playsinline=1&fs=0&mute=1&controls=0"; // Unlocks autoplay & removes UI blocker
+    base += "&playsinline=1&fs=0&mute=1"; // Restore controls natively so users can always interact with blocked autoplays
   }
   return base;
 };
@@ -130,7 +130,8 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
           e.stopPropagation();
         }
       }}
-      className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 pb-8 w-full hide-scrollbar items-center cursor-grab active:cursor-grabbing transition-all touch-pan-x ${isDragging ? 'scroll-auto' : 'md:scroll-smooth scroll-auto'} ${isMobileDevice() ? 'snap-x snap-mandatory px-4' : ''}`}
+      data-lenis-prevent="true"
+      className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 pb-8 w-full hide-scrollbar items-center cursor-grab active:cursor-grabbing transition-all ${isDragging ? 'scroll-auto' : 'md:scroll-smooth scroll-auto'} ${isMobileDevice() ? 'snap-x px-4' : ''}`}
     >
       {slots.map((slot, idx) => {
         const isMobile = isMobileDevice();
@@ -158,11 +159,11 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
           {slot.url ? (
             activeIndex === idx ? (
               <>
-                <div className={`absolute top-0 left-0 right-0 h-[65%] z-20 cursor-grab active:cursor-grabbing ${isMobile ? 'pointer-events-none' : ''}`} />
+                {!isMobile && <div className="absolute top-0 left-0 right-0 h-[65%] z-20 cursor-grab active:cursor-grabbing" />}
                 <iframe 
                   key={`active-iframe-${idx}`}
                   src={getAutoplayUrl(slot.url)} 
-                  className={`w-full h-full ${isMobile ? 'pointer-events-none' : ''}`}
+                  className={`w-full h-full`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen={!isMobile}
                   title={`${projectTitle} Slot ${idx + 1}`}
