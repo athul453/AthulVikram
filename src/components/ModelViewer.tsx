@@ -290,7 +290,7 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
       animations.forEach((clip) => {
         try {
           const action = mixerRef.current!.clipAction(clip);
-          action.setLoop(THREE.LoopRepeat, Infinity);
+          action.setLoop(THREE.LoopPingPong, Infinity);
           action.play();
         } catch (e) {}
       });
@@ -426,7 +426,7 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
     if (carRbRef.current && carNodes.length > 0) {
       if (
         trackActive &&
-        carRbRef.current.translation().y < -3 &&
+        carRbRef.current.translation().y < -10 &&
         !lockDriveInput.current
       ) {
         lockDriveInput.current = true;
