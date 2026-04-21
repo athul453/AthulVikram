@@ -228,6 +228,7 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
   const carRbRef = useRef<any>(null);
   const orbitRef = useRef<any>(null);
   const localCarOffset = useRef<THREE.Vector3 | null>(null);
+  const carNodesGroupRef = useRef<any>(null);
 
   const position = [1.5, -2.0, 0];
   const rotation = [0, -Math.PI / 4, 0];
@@ -499,9 +500,24 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
       const rot = carRbRef.current.rotation();
       q.set(rot.x, rot.y, rot.z, rot.w);
       v.set(-speed.current, 0, 0).applyQuaternion(q);
-      carRbRef.current.setLinvel({ x: v.x, y: currentVel.y, z: v.z }, true);
+      
+      // AAA Downforce: Aggressively pin the car to the flat track mathematically by strictly crushing upward bounce deflections!
+      const downforce = Math.min(0, currentVel.y - (30 * delta));
+      carRbRef.current.setLinvel({ x: v.x, y: downforce, z: v.z }, true);
+      
       const angularViscosity = speed.current * steering.current * 0.05; // Softer physics snap for AAA feel!
       carRbRef.current.setAngvel({ x: 0, y: angularViscosity, z: 0 }, true);
+      
+      // AAA Suspension Roll: Visually lean the chassis dynamically dependent natively on cornering forces!
+      if (carNodesGroupRef.current) {
+        const rollTarget = -steering.current * (Math.abs(speed.current) / maxSpeed) * 0.25; 
+        carNodesGroupRef.current.rotation.z = THREE.MathUtils.lerp(
+          carNodesGroupRef.current.rotation.z,
+          rollTarget,
+          8 * delta
+        );
+      }
+      
       const wheelSpinDelta = -speed.current * delta * 1.5;
       wheels.forEach((w) => {
         w.spinAccumulator += wheelSpinDelta;
@@ -672,7 +688,7 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
           >
             {/* The Capsule mathematically eradicates front-edge snag geometry perfectly without React crashing natively! */}
             <CapsuleCollider args={[1.2, 0.4]} position={[0, 0.4, 0]} rotation={[0, 0, Math.PI / 2]} />
-            <group scale={scale}>
+            <group ref={carNodesGroupRef} scale={scale}>
               {carNodes.map((node, i) => (
                 <primitive key={`car-${i}`} object={node} />
               ))}
