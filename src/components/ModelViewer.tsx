@@ -21,7 +21,7 @@ import {
 } from "react";
 import { useInView } from "motion/react";
 import * as THREE from "three";
-import { Physics, RigidBody, CuboidCollider } from "@react-three/rapier";
+import { Physics, RigidBody, CuboidCollider, CapsuleCollider } from "@react-three/rapier";
 import { SkeletonUtils } from "three-stdlib";
 
 const keyboardMap = [
@@ -432,9 +432,9 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
         speed.current = 0;
         setTimeout(() => {
           if (carRbRef.current) {
-            carRbRef.current.setTranslation({ x: 1.5, y: -2.0, z: 0 }, true);
+            carRbRef.current.setTranslation(restCarPos.current || { x: 1.5, y: -2.0, z: 0 }, true);
             carRbRef.current.setRotation(
-              { w: 0.92387953, x: 0, y: -0.38268343, z: 0 },
+              restCarRot.current || { w: 0.92387953, x: 0, y: -0.38268343, z: 0 },
               true,
             );
             carRbRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
@@ -472,9 +472,9 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
       }
 
       // Car limits inherently updated
-      const accel = 40;
+      const accel = 20; // Reduced gracefully for significantly smoother startup acceleration bounds natively
       const decel = 30;
-      const maxSpeed = 100;
+      const maxSpeed = 50; // Dropped to 50 for controllable track handling gracefully
       if (forward)
         speed.current = Math.min(speed.current + accel * delta, maxSpeed);
       else if (backward)
@@ -487,20 +487,20 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
       }
       speed.current = Math.max(-maxSpeed, Math.min(maxSpeed, speed.current));
       const currentVel = carRbRef.current.linvel();
-      const maxSteer = Math.PI / 5;
+      const maxSteer = Math.PI / 8; // Muted drastically for highly stabilized lateral smoothing flawlessly
       let targetSteer = 0;
       if (left) targetSteer = maxSteer; // Inverted mapping for A key!
       if (right) targetSteer = -maxSteer; // Inverted mapping for D key!
       steering.current = THREE.MathUtils.lerp(
         steering.current,
         targetSteer,
-        6 * delta,
+        4 * delta, // Extremely organic smoothed lateral tire response!
       );
       const rot = carRbRef.current.rotation();
       q.set(rot.x, rot.y, rot.z, rot.w);
       v.set(-speed.current, 0, 0).applyQuaternion(q);
       carRbRef.current.setLinvel({ x: v.x, y: currentVel.y, z: v.z }, true);
-      const angularViscosity = speed.current * steering.current * 0.12;
+      const angularViscosity = speed.current * steering.current * 0.05; // Softer physics snap for AAA feel!
       carRbRef.current.setAngvel({ x: 0, y: angularViscosity, z: 0 }, true);
       const wheelSpinDelta = -speed.current * delta * 1.5;
       wheels.forEach((w) => {
@@ -517,17 +517,7 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
 
       const pos = carRbRef.current.translation();
       if (orbitRef.current) {
-        // Game Over - Respawner (Abyss trigger)
-        if (pos.y < -5 && trackActive && !lockDriveInput.current) {
-          // Exiting driving mode seamlessly
-          setTrackActive(false);
-          tooltipClosed.current = false;
-          lockDriveInput.current = true;
-          document.dispatchEvent(new Event("cancelDriving"));
-          setTimeout(() => {
-            lockDriveInput.current = false;
-          }, 300);
-        }
+        // Obsolete secondary reset trap fully replaced by the Game Over trigger strictly dynamically above!
 
         if (trackActive && !tooltipClosed.current) {
           orbitRef.current.target.copy(pos as any);
@@ -673,13 +663,15 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
           <RigidBody
             ref={carRbRef}
             type="dynamic"
-            colliders="cuboid"
+            colliders={false}
             mass={100}
             friction={0}
             linearDamping={2}
             angularDamping={2}
             enabledRotations={[false, true, false]}
           >
+            {/* The Capsule mathematically eradicates front-edge snag geometry perfectly without React crashing natively! */}
+            <CapsuleCollider args={[1.2, 0.4]} position={[0, 0.4, 0]} rotation={[0, 0, Math.PI / 2]} />
             <group scale={scale}>
               {carNodes.map((node, i) => (
                 <primitive key={`car-${i}`} object={node} />
