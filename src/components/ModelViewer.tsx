@@ -317,6 +317,7 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
   const tooltipClosed = useRef(false);
   const isHoming = useRef(false);
   const lockDriveInput = useRef(false);
+  const transitionGrace = useRef(false);
   const lastCarPos = useRef<THREE.Vector3 | null>(null);
   const restCarPos = useRef<{ x: number; y: number; z: number } | null>(null);
   const restCarRot = useRef<{
@@ -427,7 +428,8 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
       if (
         trackActive &&
         carRbRef.current.translation().y < -10 &&
-        !lockDriveInput.current
+        !lockDriveInput.current &&
+        !transitionGrace.current
       ) {
         lockDriveInput.current = true;
         document.dispatchEvent(new Event("triggerGameOver"));
@@ -470,6 +472,8 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
         tooltipClosed.current = true;
         setFaded(true);
         setTrackActive(true);
+        transitionGrace.current = true;
+        setTimeout(() => { transitionGrace.current = false; }, 3500);
         document.dispatchEvent(new Event("showDashboard"));
       }
 
@@ -711,15 +715,6 @@ function CustomModel({ onLoaded }: { onLoaded?: () => void }) {
   );
 }
 
-function ClockManager({ inView }: { inView: boolean }) {
-  const { clock } = useThree();
-  useEffect(() => {
-    if (inView) clock.start();
-    else clock.stop();
-  }, [inView, clock]);
-  return null;
-}
-
 export default function ModelViewer({ onLoaded }: { onLoaded?: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const inView = useInView(containerRef, { margin: "0px 0px 1000px 0px" });
@@ -880,7 +875,6 @@ export default function ModelViewer({ onLoaded }: { onLoaded?: () => void }) {
               color="#000000"
             />
             <Preload all />
-            <ClockManager inView={inView} />
           </Suspense>
         </Canvas>
       </div>

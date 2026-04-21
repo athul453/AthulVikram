@@ -131,7 +131,7 @@ export default function Home() {
       setDrivingMode(true);
       setTransitionText("Welcome to Athul's World");
       setTransitioning(true);
-      setTimeout(() => setTransitioning(false), 2500); // Expanded to 2.5s to fully mask the Canvas DOM fluid layout stretch visually
+      setTimeout(() => setTransitioning(false), 3500); // Expanded cleanly allowing flawless tracking frames!
     };
     
     // Reverse Return Subscriptions
