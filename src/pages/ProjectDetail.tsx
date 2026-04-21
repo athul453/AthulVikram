@@ -40,6 +40,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
   }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (isMobileDevice()) return;
     if (!carouselRef.current) return;
     setIsDragging(true);
     scrollSpeed.current = 0;
@@ -48,11 +49,13 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
   };
 
   const handleMouseLeave = () => {
+    if (isMobileDevice()) return;
     setIsDragging(false);
     scrollSpeed.current = 0;
   };
 
   const handleMouseUp = (e: React.MouseEvent, index: number) => {
+    if (isMobileDevice()) return;
     if (!carouselRef.current) return;
     setIsDragging(false);
     const x = e.pageX - carouselRef.current.offsetLeft;
@@ -82,6 +85,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    if (isMobileDevice()) return;
     if (!carouselRef.current) return;
     if (isDragging) {
       scrollSpeed.current = 0;
@@ -146,7 +150,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
           onClick={(e) => {
             if (isMobile && !isActive) {
                onSelect(idx);
-               e.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+               e.currentTarget.scrollIntoView({ behavior: 'auto', block: 'center', inline: 'center' });
             }
           }}
           className={`relative flex-none shrink-0 aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${isMobile ? mobileClasses : desktopClasses}`}
