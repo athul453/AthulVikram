@@ -3,7 +3,7 @@ import { NodeIO } from '@gltf-transform/core';
 async function main() {
     const io = new NodeIO();
     try {
-        const document = await io.read('public/athul wbe with car Untitled.glb');
+        const document = await io.read('public/optimized_safe.glb');
         const root = document.getRoot();
         
         console.log("=== Structure ===");
