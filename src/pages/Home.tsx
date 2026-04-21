@@ -6,6 +6,7 @@ import { useProgress } from "@react-three/drei";
 import ModelViewer from "../components/ModelViewer";
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useLenis } from "lenis/react";
+import { isMobileDevice } from "../utils/device";
 
 let globalAppHasLoaded = false;
 
@@ -13,6 +14,13 @@ export default function Home() {
   const navigate = useNavigate();
   const location = useLocation();
   const { progress } = useProgress();
+  const [isMobile] = useState(() => isMobileDevice());
+
+  // Instantly unlock access and bypass all 3D compilation latches cleanly purely for lightweight mobile environments natively!
+  if (isMobile && !globalAppHasLoaded) {
+    globalAppHasLoaded = true;
+  }
+
   const [modelMounted, setModelMounted] = useState(globalAppHasLoaded);
   const [deferredMount, setDeferredMount] = useState(false);
   const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(globalAppHasLoaded);
@@ -300,7 +308,7 @@ export default function Home() {
           {/* Subtly transitions the black background to the 3D scene */}
           <div className={`absolute inset-y-0 left-0 w-48 bg-gradient-to-r from-[#0a0a0a] to-transparent pointer-events-none z-10 hidden md:block transition-opacity duration-1000 ${drivingMode ? 'opacity-0' : 'opacity-100'}`} />
           
-          {deferredMount && <ModelViewer onLoaded={() => setModelMounted(true)} />}
+          {deferredMount && !isMobile && <ModelViewer onLoaded={() => setModelMounted(true)} />}
         </div>
 
         {/* Scroll Indicator */}
