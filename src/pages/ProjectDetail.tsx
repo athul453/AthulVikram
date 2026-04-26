@@ -157,7 +157,6 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
           {slot.url ? (
             activeIndex === idx ? (
               <>
-                {!isMobile && <div className="absolute top-0 left-0 right-0 h-[65%] z-20 cursor-grab active:cursor-grabbing" />}
                 {slot.url.includes("youtube.com") || slot.url.includes("youtu.be") ? (
                   <iframe 
                     key={`active-iframe-${idx}`}
@@ -172,11 +171,10 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                     key={`active-video-${idx}`}
                     src={slot.url}
                     autoPlay
-                    controls={!isMobile}
+                    controls={true}
                     playsInline
                     loop
                     className="h-full w-auto max-w-[90vw] object-contain bg-black"
-                    style={{ transform: "translateZ(0)" }}
                   />
                 )}
               </>
@@ -194,7 +192,8 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                     src={`${slot.url}#t=0.001`}
                     className="h-full w-auto max-w-[90vw] object-contain pointer-events-none opacity-80"
                     preload="metadata"
-                    style={{ transform: "translateZ(0)" }}
+                    muted
+                    playsInline
                   />
                 )}
                 <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none bg-black/40 group-hover:bg-black/20 transition-all">
