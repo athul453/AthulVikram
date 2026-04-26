@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { PROJECTS } from "../data/works";
-import { ArrowLeft, Monitor, Play, Layers, Video, Maximize2, Loader2 } from "lucide-react";
+import { ArrowLeft, Monitor, Play, Layers, Video, Maximize2, Loader2, Settings } from "lucide-react";
 import { isMobileDevice } from "../utils/device";
 
 const getAutoplayUrl = (url: string) => {
@@ -24,6 +24,7 @@ const getThumbnailUrl = (url: string, fallback: string) => {
 // Enhanced Local Video Player with Loading State and Fullscreen
 function LocalVideoPlayer({ url, isMobile }: { url: string; isMobile: boolean }) {
   const [isBuffering, setIsBuffering] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const toggleFullscreen = (e: React.MouseEvent) => {
@@ -53,17 +54,87 @@ function LocalVideoPlayer({ url, isMobile }: { url: string; isMobile: boolean })
         loop
         onWaiting={() => setIsBuffering(true)}
         onPlaying={() => setIsBuffering(false)}
-        onCanPlay={() => setIsBuffering(false)}
+        onCanPlayThrough={() => setIsBuffering(false)}
         className="h-full w-auto max-w-full object-contain"
       />
       {!isMobile && (
-        <button 
-          onClick={toggleFullscreen}
-          className="absolute top-4 right-4 z-20 p-2 bg-black/60 hover:bg-black/90 rounded-xl text-white opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-md border border-white/10 shadow-lg"
-          title="Fullscreen"
-        >
-          <Maximize2 className="w-5 h-5" />
-        </button>
+        <>
+          <button 
+            onClick={toggleFullscreen}
+            className="absolute top-4 right-4 z-20 p-2 bg-black/60 hover:bg-black/90 rounded-xl text-white opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-md border border-white/10 shadow-lg"
+            title="Fullscreen"
+          >
+            <Maximize2 className="w-5 h-5" />
+          </button>
+          
+          <div className="absolute top-4 right-16 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button 
+              onClick={(e) => { e.stopPropagation(); setShowSettings(!showSettings); }}
+              className="p-2 bg-black/60 hover:bg-black/90 rounded-xl text-white backdrop-blur-md border border-white/10 shadow-lg"
+              title="Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+            
+            {showSettings && (
+              <div className="absolute top-12 right-0 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl py-2 w-48 text-sm overflow-hidden z-30">
+                <div className="px-4 py-2 text-white/50 text-xs font-semibold uppercase tracking-wider border-b border-white/10 mb-1">Quality</div>
+                <button className="w-full text-left px-4 py-2 hover:bg-white/10 text-white flex items-center justify-between">
+                  <span>1080p (Source)</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                </button>
+                <button className="w-full text-left px-4 py-2 text-white/40 cursor-not-allowed" title="Available via YouTube embed only">
+                  720p
+                </button>
+                <button className="w-full text-left px-4 py-2 text-white/40 cursor-not-allowed" title="Available via YouTube embed only">
+                  480p
+                </button>
+                <button className="w-full text-left px-4 py-2 text-white/40 cursor-not-allowed" title="Available via YouTube embed only">
+                  Auto
+                </button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function LazyVideoThumbnail({ url }: { url: string }) {
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" } // Load slightly before it enters the viewport
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={containerRef} className="w-full h-full flex items-center justify-center">
+      {isVisible ? (
+        <video 
+          src={`${url}#t=0.001`}
+          className="h-full w-auto max-w-[90vw] object-contain pointer-events-none opacity-80"
+          preload="metadata"
+          muted
+          playsInline
+        />
+      ) : (
+        <Loader2 className="w-8 h-8 text-white/20 animate-spin" />
       )}
     </div>
   );
@@ -228,13 +299,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                     className="w-full h-full object-cover pointer-events-none opacity-80"
                   />
                 ) : (
-                  <video 
-                    src={`${slot.url}#t=0.001`}
-                    className="h-full w-auto max-w-[90vw] object-contain pointer-events-none opacity-80"
-                    preload="metadata"
-                    muted
-                    playsInline
-                  />
+                  <LazyVideoThumbnail url={slot.url} />
                 )}
                 <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none bg-black/40 group-hover:bg-black/20 transition-all">
                    <div className="w-16 h-16 md:w-20 md:h-20 bg-purple-600/90 rounded-full flex items-center justify-center backdrop-blur-md shadow-2xl group-hover:scale-110 transition-transform">
