@@ -183,11 +183,19 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
             ) : (
               <>
                 <div className="absolute inset-0 z-20 cursor-grab active:cursor-grabbing" />
-                <img 
-                  src={getThumbnailUrl(slot.url, fallbackThumbnail)} 
-                  alt={slot.title}
-                  className="w-full h-full object-cover pointer-events-none opacity-80"
-                />
+                {slot.url.includes("youtube.com") || slot.url.includes("youtu.be") ? (
+                  <img 
+                    src={getThumbnailUrl(slot.url, fallbackThumbnail)} 
+                    alt={slot.title}
+                    className="w-full h-full object-cover pointer-events-none opacity-80"
+                  />
+                ) : (
+                  <video 
+                    src={`${slot.url}#t=0.001`}
+                    className="w-full h-full object-cover pointer-events-none opacity-80"
+                    preload="metadata"
+                  />
+                )}
                 <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none bg-black/40 group-hover:bg-black/20 transition-all">
                    <div className="w-16 h-16 md:w-20 md:h-20 bg-purple-600/90 rounded-full flex items-center justify-center backdrop-blur-md shadow-2xl group-hover:scale-110 transition-transform">
                       <Play className="text-white w-6 h-6 md:w-8 md:h-8 ml-2 fill-white" />
