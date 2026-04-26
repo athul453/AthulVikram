@@ -136,16 +136,15 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
       {slots.map((slot, idx) => {
         const isMobile = isMobileDevice();
         const isActive = activeIndex === idx;
-        const mobileClasses = `w-[85vw] transition-all duration-500 ease-out border ${isActive ? 'border-purple-500/50 shadow-[0_0_30px_rgba(192,38,211,0.3)] opacity-100 scale-100' : 'border-white/5 opacity-60 scale-[0.93] brightness-75'}`;
-        const desktopClasses = `${isActive ? 'h-full min-h-[50vh] max-h-[85vh]' : 'h-full min-h-[200px] md:min-h-[300px] max-h-[200px] md:max-h-[300px]'}`;
+        const mobileClasses = `w-[85vw] h-[250px] transition-opacity duration-300 ease-out border ${isActive ? 'border-purple-500/50 shadow-[0_0_30px_rgba(192,38,211,0.3)] opacity-100' : 'border-white/5 opacity-60 brightness-75'}`;
+        const desktopClasses = `h-[200px] md:h-[300px]`;
+        const isYouTube = slot.url && (slot.url.includes("youtube.com") || slot.url.includes("youtu.be"));
 
         return (
         <motion.div 
-          layout
           initial={false}
           whileHover={!isMobile ? { scale: 1.02 } : undefined}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          style={{ willChange: "transform, width, height" }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
           key={idx}
           onMouseUp={(e) => handleMouseUp(e, idx)}
           onClick={() => {
@@ -153,7 +152,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                onSelect(idx);
             }
           }}
-          className={`relative flex-none shrink-0 aspect-video rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${isMobile ? mobileClasses : desktopClasses}`}
+          className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${isYouTube || !slot.url ? 'aspect-video' : 'w-auto'} ${isMobile ? mobileClasses : desktopClasses}`}
         >
           {slot.url ? (
             activeIndex === idx ? (
@@ -176,7 +175,8 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                     controls={!isMobile}
                     playsInline
                     loop
-                    className="w-full h-full object-contain bg-black"
+                    className="h-full w-auto max-w-[90vw] object-contain bg-black"
+                    style={{ transform: "translateZ(0)" }}
                   />
                 )}
               </>
@@ -192,8 +192,9 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                 ) : (
                   <video 
                     src={`${slot.url}#t=0.001`}
-                    className="w-full h-full object-cover pointer-events-none opacity-80"
+                    className="h-full w-auto max-w-[90vw] object-contain pointer-events-none opacity-80"
                     preload="metadata"
+                    style={{ transform: "translateZ(0)" }}
                   />
                 )}
                 <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none bg-black/40 group-hover:bg-black/20 transition-all">
@@ -280,9 +281,7 @@ export default function ProjectDetail() {
       <div className="flex-1 flex flex-col gap-6">
           {/* Final Render Carousel Section */}
           <motion.section 
-            layout
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col transition-opacity duration-700 ${isMobileDevice() ? 'flex-1 mb-8' : (activeVideo !== null ? 'flex-[3]' : activeBreakdown !== null ? 'flex-[0.5] opacity-50' : 'flex-1')}`}
+            className={`flex flex-col transition-opacity duration-700 ${isMobileDevice() ? 'flex-1 mb-8' : 'flex-1'}`}
           >
             <h2 className="text-xl md:text-2xl font-display font-medium mb-3 flex items-center gap-3 flex-none pl-2">
               <Play className="text-purple-500 w-5 h-5 md:w-6 md:h-6" /> Final Render
@@ -298,9 +297,7 @@ export default function ProjectDetail() {
 
           {/* Process Breakdown Carousel Section */}
           <motion.section 
-            layout
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col transition-opacity duration-700 pb-4 ${isMobileDevice() ? 'flex-1' : (activeBreakdown !== null ? 'flex-[3]' : activeVideo !== null ? 'flex-[0.5] opacity-50' : 'flex-1')}`}
+            className={`flex flex-col transition-opacity duration-700 pb-4 ${isMobileDevice() ? 'flex-1' : 'flex-1'}`}
           >
             <h2 className="text-xl md:text-2xl font-display font-medium mb-3 flex items-center gap-3 flex-none pl-2">
               <Layers className="text-purple-500 w-5 h-5 md:w-6 md:h-6" /> Process Breakdown
