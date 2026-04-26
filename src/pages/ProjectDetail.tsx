@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { PROJECTS } from "../data/works";
-import { ArrowLeft, Monitor, Play, Layers, Video } from "lucide-react";
+import { ArrowLeft, Monitor, Play, Layers, Video, Maximize2, Loader2 } from "lucide-react";
 import { isMobileDevice } from "../utils/device";
 
 const getAutoplayUrl = (url: string) => {
@@ -20,6 +20,54 @@ const getThumbnailUrl = (url: string, fallback: string) => {
   const match = url.match(regExp);
   return (match && match[2].length === 11) ? `https://img.youtube.com/vi/${match[2]}/maxresdefault.jpg` : fallback;
 };
+
+// Enhanced Local Video Player with Loading State and Fullscreen
+function LocalVideoPlayer({ url, isMobile }: { url: string; isMobile: boolean }) {
+  const [isBuffering, setIsBuffering] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const toggleFullscreen = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      if (videoRef.current.requestFullscreen) {
+        videoRef.current.requestFullscreen();
+      } else if ((videoRef.current as any).webkitRequestFullscreen) {
+        (videoRef.current as any).webkitRequestFullscreen();
+      }
+    }
+  };
+
+  return (
+    <div className="relative w-full h-full flex flex-col items-center justify-center bg-black group overflow-hidden">
+      {isBuffering && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300">
+          <Loader2 className="w-10 h-10 text-purple-500 animate-spin" />
+        </div>
+      )}
+      <video
+        ref={videoRef}
+        src={url}
+        autoPlay
+        controls={true}
+        playsInline
+        loop
+        onWaiting={() => setIsBuffering(true)}
+        onPlaying={() => setIsBuffering(false)}
+        onCanPlay={() => setIsBuffering(false)}
+        className="h-full w-auto max-w-full object-contain"
+      />
+      {!isMobile && (
+        <button 
+          onClick={toggleFullscreen}
+          className="absolute top-4 right-4 z-20 p-2 bg-black/60 hover:bg-black/90 rounded-xl text-white opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-md border border-white/10 shadow-lg"
+          title="Fullscreen"
+        >
+          <Maximize2 className="w-5 h-5" />
+        </button>
+      )}
+    </div>
+  );
+}
 
 // Extracted Unified Carousel Component
 function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallbackThumbnail }: { slots: any[], activeIndex: number | null, onSelect: (idx: number) => void, projectTitle: string, fallbackThumbnail: string }) {
@@ -167,15 +215,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                     title={`${projectTitle} Slot ${idx + 1}`}
                   />
                 ) : (
-                  <video
-                    key={`active-video-${idx}`}
-                    src={slot.url}
-                    autoPlay
-                    controls={true}
-                    playsInline
-                    loop
-                    className="h-full w-auto max-w-[90vw] object-contain bg-black"
-                  />
+                  <LocalVideoPlayer url={slot.url} isMobile={isMobile} />
                 )}
               </>
             ) : (
