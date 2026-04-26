@@ -8,6 +8,8 @@ export interface Project {
   roundupUrl?: string;
   softwares: string[];
   explanation: string;
+  finalOutUrls?: string[];
+  breakdownUrls?: string[];
 }
 
 export const PROJECTS: Project[] = [
@@ -20,7 +22,19 @@ export const PROJECTS: Project[] = [
     breakdownUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Placeholder
     roundupUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Placeholder
     softwares: ["Blender", "After Effects", "Substance Painter"],
-    explanation: "This project focused on creating a dense, lived-in urban environment. I used geometry nodes for building generation and custom shaders for the neon signs."
+    explanation: "This project focused on creating a dense, lived-in urban environment. I used geometry nodes for building generation and custom shaders for the neon signs.",
+    finalOutUrls: [
+      "/videos/blender-vfx/final_out_1.mp4",
+      "/videos/blender-vfx/final_out_2.mp4",
+      "/videos/blender-vfx/final_out_3.mp4",
+      "/videos/blender-vfx/final_out_4.mp4",
+    ],
+    breakdownUrls: [
+      "/videos/blender-vfx/breakdown_1.mp4",
+      "/videos/blender-vfx/breakdown_2.mp4",
+      "/videos/blender-vfx/breakdown_3.mp4",
+      "/videos/blender-vfx/breakdown_4.mp4",
+    ]
   },
   {
     id: "nature-vfx",

@@ -159,14 +159,26 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
             activeIndex === idx ? (
               <>
                 {!isMobile && <div className="absolute top-0 left-0 right-0 h-[65%] z-20 cursor-grab active:cursor-grabbing" />}
-                <iframe 
-                  key={`active-iframe-${idx}`}
-                  src={getAutoplayUrl(slot.url)} 
-                  className={`w-full h-full`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen={!isMobile}
-                  title={`${projectTitle} Slot ${idx + 1}`}
-                />
+                {slot.url.includes("youtube.com") || slot.url.includes("youtu.be") ? (
+                  <iframe 
+                    key={`active-iframe-${idx}`}
+                    src={getAutoplayUrl(slot.url)} 
+                    className={`w-full h-full`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen={!isMobile}
+                    title={`${projectTitle} Slot ${idx + 1}`}
+                  />
+                ) : (
+                  <video
+                    key={`active-video-${idx}`}
+                    src={slot.url}
+                    autoPlay
+                    controls={!isMobile}
+                    playsInline
+                    loop
+                    className="w-full h-full object-contain bg-black"
+                  />
+                )}
               </>
             ) : (
               <>
@@ -217,17 +229,21 @@ export default function ProjectDetail() {
 
   if (!project) return <div className="p-20 text-center">Project not found</div>;
 
-  const carouselSlots = [
-    { url: project.videoUrl, title: "MAIN CLIP" },
-    { url: "", title: "+ UPLOAD NEXT CLIP" },
-    { url: "", title: "+ UPLOAD FINAL CLIP" },
-  ];
+  const carouselSlots = project.finalOutUrls && project.finalOutUrls.length > 0
+    ? project.finalOutUrls.map((url, index) => ({ url, title: `CLIP 0${index + 1}` }))
+    : [
+        { url: project.videoUrl, title: "MAIN CLIP" },
+        { url: "", title: "+ UPLOAD NEXT CLIP" },
+        { url: "", title: "+ UPLOAD FINAL CLIP" },
+      ];
 
-  const breakdownSlots = [
-    { url: project.breakdownUrl, title: "BREAKDOWN" },
-    { url: "", title: "+ UPLOAD BREAKDOWN 2" },
-    { url: "", title: "+ UPLOAD BREAKDOWN 3" },
-  ];
+  const breakdownSlots = project.breakdownUrls && project.breakdownUrls.length > 0
+    ? project.breakdownUrls.map((url, index) => ({ url, title: `BREAKDOWN 0${index + 1}` }))
+    : [
+        { url: project.breakdownUrl, title: "BREAKDOWN" },
+        { url: "", title: "+ UPLOAD BREAKDOWN 2" },
+        { url: "", title: "+ UPLOAD BREAKDOWN 3" },
+      ];
 
   return (
     <motion.div 
