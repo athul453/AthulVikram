@@ -22,7 +22,7 @@ const getThumbnailUrl = (url: string, fallback: string) => {
 };
 
 // Enhanced Local Video Player with Loading State and Fullscreen
-function LocalVideoPlayer({ url, isMobile }: { url: string; isMobile: boolean }) {
+function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobile: boolean; isBlenderVFX?: boolean }) {
   const [isBuffering, setIsBuffering] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -41,7 +41,7 @@ function LocalVideoPlayer({ url, isMobile }: { url: string; isMobile: boolean })
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center bg-black group overflow-hidden">
       {isBuffering && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300">
+        <div className={`absolute inset-0 z-10 flex items-center justify-center transition-opacity duration-300 ${isBlenderVFX ? 'bg-black/60 backdrop-blur-md' : 'bg-black/50 backdrop-blur-sm'}`}>
           <Loader2 className="w-10 h-10 text-purple-500 animate-spin" />
         </div>
       )}
@@ -52,10 +52,11 @@ function LocalVideoPlayer({ url, isMobile }: { url: string; isMobile: boolean })
         controls={true}
         playsInline
         loop
+        preload={isBlenderVFX ? "metadata" : undefined}
         onWaiting={() => setIsBuffering(true)}
         onPlaying={() => setIsBuffering(false)}
         onCanPlayThrough={() => setIsBuffering(false)}
-        className="h-full w-auto max-w-full object-contain"
+        className={isBlenderVFX ? "h-full w-full object-cover aspect-video" : "h-full w-auto max-w-full object-contain"}
       />
       {!isMobile && (
         <>
@@ -101,7 +102,7 @@ function LocalVideoPlayer({ url, isMobile }: { url: string; isMobile: boolean })
   );
 }
 
-function LazyVideoThumbnail({ url }: { url: string }) {
+function LazyVideoThumbnail({ url, isBlenderVFX }: { url: string; isBlenderVFX?: boolean }) {
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -128,7 +129,7 @@ function LazyVideoThumbnail({ url }: { url: string }) {
       {isVisible ? (
         <video 
           src={`${url}#t=0.001`}
-          className="h-full w-auto max-w-[90vw] object-contain pointer-events-none opacity-80"
+          className={isBlenderVFX ? "h-full w-full object-cover pointer-events-none opacity-80 aspect-video" : "h-full w-auto max-w-[90vw] object-contain pointer-events-none opacity-80"}
           preload="metadata"
           muted
           playsInline
@@ -141,7 +142,7 @@ function LazyVideoThumbnail({ url }: { url: string }) {
 }
 
 // Extracted Unified Carousel Component
-function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallbackThumbnail }: { slots: any[], activeIndex: number | null, onSelect: (idx: number) => void, projectTitle: string, fallbackThumbnail: string }) {
+function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallbackThumbnail, isBlenderVFX }: { slots: any[], activeIndex: number | null, onSelect: (idx: number) => void, projectTitle: string, fallbackThumbnail: string, isBlenderVFX?: boolean }) {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -271,7 +272,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                onSelect(idx);
             }
           }}
-          className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${isYouTube || !slot.url ? 'aspect-video' : 'w-auto'} ${isMobile ? mobileClasses : desktopClasses}`}
+          className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${isBlenderVFX ? 'aspect-video w-auto' : (isYouTube || !slot.url ? 'aspect-video' : 'w-auto')} ${isMobile ? mobileClasses : desktopClasses}`}
         >
           {slot.url ? (
             activeIndex === idx ? (
@@ -286,7 +287,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                     title={`${projectTitle} Slot ${idx + 1}`}
                   />
                 ) : (
-                  <LocalVideoPlayer url={slot.url} isMobile={isMobile} />
+                  <LocalVideoPlayer url={slot.url} isMobile={isMobile} isBlenderVFX={isBlenderVFX} />
                 )}
               </>
             ) : (
@@ -299,7 +300,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                     className="w-full h-full object-cover pointer-events-none opacity-80"
                   />
                 ) : (
-                  <LazyVideoThumbnail url={slot.url} />
+                  <LazyVideoThumbnail url={slot.url} isBlenderVFX={isBlenderVFX} />
                 )}
                 <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none bg-black/40 group-hover:bg-black/20 transition-all">
                    <div className="w-16 h-16 md:w-20 md:h-20 bg-purple-600/90 rounded-full flex items-center justify-center backdrop-blur-md shadow-2xl group-hover:scale-110 transition-transform">
@@ -341,6 +342,8 @@ export default function ProjectDetail() {
   const [activeBreakdown, setActiveBreakdown] = useState<number | null>(null);
 
   if (!project) return <div className="p-20 text-center">Project not found</div>;
+
+  const isBlenderVFX = project.id === "cyber-city";
 
   const carouselSlots = project.finalOutUrls && project.finalOutUrls.length > 0
     ? project.finalOutUrls.map((url, index) => ({ url, title: `CLIP 0${index + 1}` }))
@@ -396,6 +399,7 @@ export default function ProjectDetail() {
               onSelect={(idx) => { setActiveVideo(idx); setActiveBreakdown(null); }} 
               projectTitle={project.title} 
               fallbackThumbnail={project.thumbnail}
+              isBlenderVFX={isBlenderVFX}
             />
           </motion.section>
 
@@ -412,6 +416,7 @@ export default function ProjectDetail() {
               onSelect={(idx) => { setActiveBreakdown(idx); setActiveVideo(null); }} 
               projectTitle={project.title} 
               fallbackThumbnail={project.thumbnail}
+              isBlenderVFX={isBlenderVFX}
             />
           </motion.section>
       </div>
