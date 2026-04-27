@@ -41,7 +41,7 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
   };
 
   return (
-    <div className={`relative w-full h-full flex flex-col items-center justify-center bg-black group overflow-hidden ${isBlenderVFX ? 'aspect-video' : ''}`}>
+    <div style={isBlenderVFX ? { transform: 'translateZ(0)', willChange: 'transform' } : undefined} className={`relative w-full h-full flex flex-col items-center justify-center bg-black group overflow-hidden ${isBlenderVFX ? 'aspect-video' : ''}`}>
       {isBuffering && (
         <div className={`absolute inset-0 z-10 flex items-center justify-center transition-opacity duration-300 ${isBlenderVFX ? 'bg-black/80 backdrop-blur-md' : 'bg-black/50 backdrop-blur-sm'}`}>
           <Loader2 className="w-10 h-10 text-purple-500 animate-spin" />
@@ -129,14 +129,22 @@ function LazyVideoThumbnail({ url, isBlenderVFX, fallbackThumbnail }: { url: str
   return (
     <div ref={containerRef} className={`w-full h-full flex items-center justify-center ${isBlenderVFX ? 'aspect-video' : ''}`}>
       {isVisible ? (
-        <video 
-          src={`${url}#t=0.001`}
-          className={isBlenderVFX ? "w-full h-full object-cover pointer-events-none opacity-80" : "h-full w-auto max-w-[90vw] object-contain pointer-events-none opacity-80"}
-          preload={isBlenderVFX ? "none" : "metadata"}
-          poster={isBlenderVFX ? fallbackThumbnail : undefined}
-          muted
-          playsInline
-        />
+        isBlenderVFX ? (
+          <img 
+            src={fallbackThumbnail}
+            alt="Video Thumbnail"
+            loading="lazy"
+            className="w-full h-full object-cover pointer-events-none opacity-80"
+          />
+        ) : (
+          <video 
+            src={`${url}#t=0.001`}
+            className="h-full w-auto max-w-[90vw] object-contain pointer-events-none opacity-80"
+            preload="metadata"
+            muted
+            playsInline
+          />
+        )
       ) : (
         <Loader2 className="w-8 h-8 text-white/20 animate-spin" />
       )}
@@ -275,6 +283,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                if (!isBlenderVFX) onSelect(idx);
             }
           }}
+          style={isBlenderVFX ? { transform: 'translateZ(0)', willChange: 'transform' } : undefined}
           className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${isBlenderVFX ? 'aspect-video w-auto' : (isYouTube || !slot.url ? 'aspect-video' : 'w-auto')} ${isMobile ? mobileClasses : desktopClasses}`}
         >
           {slot.url ? (
