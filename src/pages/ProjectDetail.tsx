@@ -254,7 +254,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
         }
       }}
       data-lenis-prevent="true"
-      className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 pb-8 w-full hide-scrollbar items-center cursor-grab active:cursor-grabbing transition-all ${isDragging ? 'scroll-auto' : 'md:scroll-smooth scroll-auto'} ${isMobileDevice() ? 'px-4' : ''}`}
+      className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 pb-8 w-full hide-scrollbar items-center transition-all ${isBlenderVFX ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'} ${isDragging ? 'scroll-auto' : 'md:scroll-smooth scroll-auto'} ${isMobileDevice() ? 'px-4' : ''}`}
     >
       {slots.map((slot, idx) => {
         const isMobile = isMobileDevice();
@@ -295,7 +295,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
               </>
             ) : (
               <>
-                <div className="absolute inset-0 z-20 cursor-grab active:cursor-grabbing" />
+                <div className={`absolute inset-0 z-20 ${isBlenderVFX ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'}`} />
                 {slot.url.includes("youtube.com") || slot.url.includes("youtu.be") ? (
                   <img 
                     src={getThumbnailUrl(slot.url, fallbackThumbnail)} 
@@ -307,7 +307,8 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                 )}
                 <div className={`absolute inset-0 z-10 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all ${isBlenderVFX ? 'pointer-events-none' : 'pointer-events-none'}`}>
                    <div 
-                      className={`w-16 h-16 md:w-20 md:h-20 bg-purple-600/90 rounded-full flex items-center justify-center backdrop-blur-md shadow-2xl group-hover:scale-110 transition-transform ${isBlenderVFX ? 'pointer-events-auto cursor-pointer' : ''}`}
+                      style={isBlenderVFX ? { cursor: 'pointer' } : undefined}
+                      className={`w-16 h-16 md:w-20 md:h-20 bg-purple-600/90 rounded-full flex items-center justify-center backdrop-blur-md shadow-2xl group-hover:scale-110 transition-transform ${isBlenderVFX ? 'pointer-events-auto' : ''}`}
                       onClick={(e) => {
                          if (isBlenderVFX) {
                             e.stopPropagation();
@@ -315,7 +316,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                          }
                       }}
                    >
-                      <Play className="text-white w-6 h-6 md:w-8 md:h-8 ml-2 fill-white" />
+                      <Play className="text-white w-6 h-6 md:w-8 md:h-8 ml-2 fill-white pointer-events-none" />
                    </div>
                 </div>
               </>
@@ -377,7 +378,7 @@ export default function ProjectDetail() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className={`w-full flex flex-col pt-[100px] md:pt-[120px] pb-6 px-4 md:px-8 max-w-[1600px] mx-auto ${isMobileDevice() ? 'h-[100dvh] overflow-hidden fixed inset-0' : 'min-h-screen'}`}
+      className={`w-full flex flex-col pt-[100px] md:pt-[120px] pb-6 px-4 md:px-8 max-w-[1600px] mx-auto ${isMobileDevice() ? 'h-[100dvh] overflow-hidden fixed inset-0' : 'min-h-screen'} ${isBlenderVFX ? 'select-none [&_*]:cursor-default' : ''}`}
     >
       <div className="flex items-center justify-between flex-none mb-6">
         <button 
