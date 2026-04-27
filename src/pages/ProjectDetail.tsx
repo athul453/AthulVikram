@@ -27,6 +27,12 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
   const [showSettings, setShowSettings] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  useEffect(() => {
+    if (isBlenderVFX && videoRef.current) {
+      videoRef.current.load();
+    }
+  }, [url, isBlenderVFX]);
+
   const toggleFullscreen = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (videoRef.current) {
@@ -52,7 +58,7 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
         controls={true}
         playsInline
         loop
-        preload={isBlenderVFX ? "metadata" : undefined}
+        preload={isBlenderVFX ? "none" : undefined}
         onWaiting={() => {
           setIsBuffering(true);
           if (isBlenderVFX && videoRef.current) videoRef.current.pause();
@@ -110,7 +116,7 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
   );
 }
 
-function LazyVideoThumbnail({ url, isBlenderVFX }: { url: string; isBlenderVFX?: boolean }) {
+function LazyVideoThumbnail({ url, isBlenderVFX, fallbackThumbnail }: { url: string; isBlenderVFX?: boolean; fallbackThumbnail?: string }) {
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -138,7 +144,8 @@ function LazyVideoThumbnail({ url, isBlenderVFX }: { url: string; isBlenderVFX?:
         <video 
           src={`${url}#t=0.001`}
           className={isBlenderVFX ? "w-full h-full object-contain pointer-events-none opacity-80" : "h-full w-auto max-w-[90vw] object-contain pointer-events-none opacity-80"}
-          preload="metadata"
+          preload={isBlenderVFX ? "none" : "metadata"}
+          poster={isBlenderVFX ? fallbackThumbnail : undefined}
           muted
           playsInline
         />
@@ -189,7 +196,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
     const x = e.pageX - carouselRef.current.offsetLeft;
     const walk = Math.abs(x - startX);
     if (walk < 5) {
-      onSelect(index);
+      if (!isBlenderVFX) onSelect(index);
       setTimeout(() => {
         if (carouselRef.current && carouselRef.current.children[index]) {
           carouselRef.current.children[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
@@ -277,7 +284,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
           onMouseUp={(e) => handleMouseUp(e, idx)}
           onClick={() => {
             if (isMobile && !isActive) {
-               onSelect(idx);
+               if (!isBlenderVFX) onSelect(idx);
             }
           }}
           className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${isBlenderVFX ? 'aspect-video w-auto' : (isYouTube || !slot.url ? 'aspect-video' : 'w-auto')} ${isMobile ? mobileClasses : desktopClasses}`}
@@ -308,10 +315,18 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                     className="w-full h-full object-cover pointer-events-none opacity-80"
                   />
                 ) : (
-                  <LazyVideoThumbnail url={slot.url} isBlenderVFX={isBlenderVFX} />
+                  <LazyVideoThumbnail url={slot.url} isBlenderVFX={isBlenderVFX} fallbackThumbnail={fallbackThumbnail} />
                 )}
-                <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none bg-black/40 group-hover:bg-black/20 transition-all">
-                   <div className="w-16 h-16 md:w-20 md:h-20 bg-purple-600/90 rounded-full flex items-center justify-center backdrop-blur-md shadow-2xl group-hover:scale-110 transition-transform">
+                <div className={`absolute inset-0 z-10 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all ${isBlenderVFX ? 'pointer-events-none' : 'pointer-events-none'}`}>
+                   <div 
+                      className={`w-16 h-16 md:w-20 md:h-20 bg-purple-600/90 rounded-full flex items-center justify-center backdrop-blur-md shadow-2xl group-hover:scale-110 transition-transform ${isBlenderVFX ? 'pointer-events-auto cursor-pointer' : ''}`}
+                      onClick={(e) => {
+                         if (isBlenderVFX) {
+                            e.stopPropagation();
+                            onSelect(idx);
+                         }
+                      }}
+                   >
                       <Play className="text-white w-6 h-6 md:w-8 md:h-8 ml-2 fill-white" />
                    </div>
                 </div>
