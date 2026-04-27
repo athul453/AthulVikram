@@ -39,24 +39,32 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
   };
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center bg-black group overflow-hidden">
+    <div className={`relative w-full h-full flex flex-col items-center justify-center bg-black group overflow-hidden ${isBlenderVFX ? 'aspect-video' : ''}`}>
       {isBuffering && (
-        <div className={`absolute inset-0 z-10 flex items-center justify-center transition-opacity duration-300 ${isBlenderVFX ? 'bg-black/60 backdrop-blur-md' : 'bg-black/50 backdrop-blur-sm'}`}>
+        <div className={`absolute inset-0 z-10 flex items-center justify-center transition-opacity duration-300 ${isBlenderVFX ? 'bg-black/80 backdrop-blur-md' : 'bg-black/50 backdrop-blur-sm'}`}>
           <Loader2 className="w-10 h-10 text-purple-500 animate-spin" />
         </div>
       )}
       <video
         ref={videoRef}
         src={url}
-        autoPlay
+        autoPlay={!isBlenderVFX}
         controls={true}
         playsInline
         loop
         preload={isBlenderVFX ? "metadata" : undefined}
-        onWaiting={() => setIsBuffering(true)}
+        onWaiting={() => {
+          setIsBuffering(true);
+          if (isBlenderVFX && videoRef.current) videoRef.current.pause();
+        }}
         onPlaying={() => setIsBuffering(false)}
-        onCanPlayThrough={() => setIsBuffering(false)}
-        className={isBlenderVFX ? "h-full w-full object-cover aspect-video" : "h-full w-auto max-w-full object-contain"}
+        onCanPlayThrough={() => {
+          setIsBuffering(false);
+          if (isBlenderVFX && videoRef.current) {
+            videoRef.current.play().catch(() => {});
+          }
+        }}
+        className={isBlenderVFX ? "w-full h-full object-contain" : "h-full w-auto max-w-full object-contain"}
       />
       {!isMobile && (
         <>
@@ -125,11 +133,11 @@ function LazyVideoThumbnail({ url, isBlenderVFX }: { url: string; isBlenderVFX?:
   }, []);
 
   return (
-    <div ref={containerRef} className="w-full h-full flex items-center justify-center">
+    <div ref={containerRef} className={`w-full h-full flex items-center justify-center ${isBlenderVFX ? 'aspect-video' : ''}`}>
       {isVisible ? (
         <video 
           src={`${url}#t=0.001`}
-          className={isBlenderVFX ? "h-full w-full object-cover pointer-events-none opacity-80 aspect-video" : "h-full w-auto max-w-[90vw] object-contain pointer-events-none opacity-80"}
+          className={isBlenderVFX ? "w-full h-full object-contain pointer-events-none opacity-80" : "h-full w-auto max-w-[90vw] object-contain pointer-events-none opacity-80"}
           preload="metadata"
           muted
           playsInline
