@@ -41,7 +41,7 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
   };
 
   return (
-    <div style={isBlenderVFX ? { transform: 'translateZ(0)', willChange: 'transform' } : undefined} className={`relative w-full h-full flex flex-col items-center justify-center bg-black group overflow-hidden ${isBlenderVFX ? 'aspect-video' : ''}`}>
+    <div style={isBlenderVFX ? { transform: 'translateZ(0)', willChange: 'transform', backfaceVisibility: 'hidden' } : undefined} className={`relative w-full h-full flex flex-col items-center justify-center bg-black group overflow-hidden ${isBlenderVFX ? 'aspect-video' : ''}`}>
       {isBuffering && (
         <div className={`absolute inset-0 z-10 flex items-center justify-center transition-opacity duration-300 ${isBlenderVFX ? 'bg-black/80 backdrop-blur-md' : 'bg-black/50 backdrop-blur-sm'}`}>
           <Loader2 className="w-10 h-10 text-purple-500 animate-spin" />
@@ -54,7 +54,7 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
         controls={true}
         playsInline
         loop
-        preload={isBlenderVFX ? "none" : undefined}
+        preload="auto"
         onWaiting={() => setIsBuffering(true)}
         onPlaying={() => setIsBuffering(false)}
         onCanPlayThrough={() => setIsBuffering(false)}
@@ -283,7 +283,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                if (!isBlenderVFX) onSelect(idx);
             }
           }}
-          style={isBlenderVFX ? { transform: 'translateZ(0)', willChange: 'transform' } : undefined}
+          style={isBlenderVFX ? { transform: 'translateZ(0)', willChange: 'transform', backfaceVisibility: 'hidden' } : undefined}
           className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${isBlenderVFX ? 'aspect-video w-auto' : (isYouTube || !slot.url ? 'aspect-video' : 'w-auto')} ${isMobile ? mobileClasses : desktopClasses}`}
         >
           {slot.url ? (
@@ -314,7 +314,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                 ) : (
                   <LazyVideoThumbnail url={slot.url} isBlenderVFX={isBlenderVFX} fallbackThumbnail={fallbackThumbnail} />
                 )}
-                <div className={`absolute inset-0 z-10 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all ${isBlenderVFX ? 'pointer-events-none' : 'pointer-events-none'}`}>
+                <div className={`absolute inset-0 z-30 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all ${isBlenderVFX ? 'pointer-events-none' : 'pointer-events-none'}`}>
                    <div 
                       style={isBlenderVFX ? { cursor: 'pointer' } : undefined}
                       className={`w-16 h-16 md:w-20 md:h-20 bg-purple-600/90 rounded-full flex items-center justify-center backdrop-blur-md shadow-2xl group-hover:scale-110 transition-transform ${isBlenderVFX ? 'pointer-events-auto' : ''}`}
