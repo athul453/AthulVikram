@@ -27,11 +27,7 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
   const [showSettings, setShowSettings] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  useEffect(() => {
-    if (isBlenderVFX && videoRef.current) {
-      videoRef.current.load();
-    }
-  }, [url, isBlenderVFX]);
+  // Manual load removed; video is now conditionally mounted so autoPlay naturally triggers buffering
 
   const toggleFullscreen = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -54,22 +50,14 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
       <video
         ref={videoRef}
         src={url}
-        autoPlay={!isBlenderVFX}
+        autoPlay={true}
         controls={true}
         playsInline
         loop
         preload={isBlenderVFX ? "none" : undefined}
-        onWaiting={() => {
-          setIsBuffering(true);
-          if (isBlenderVFX && videoRef.current) videoRef.current.pause();
-        }}
+        onWaiting={() => setIsBuffering(true)}
         onPlaying={() => setIsBuffering(false)}
-        onCanPlayThrough={() => {
-          setIsBuffering(false);
-          if (isBlenderVFX && videoRef.current) {
-            videoRef.current.play().catch(() => {});
-          }
-        }}
+        onCanPlayThrough={() => setIsBuffering(false)}
         className={isBlenderVFX ? "w-full h-full object-contain" : "h-full w-auto max-w-full object-contain"}
       />
       {!isMobile && (
@@ -143,7 +131,7 @@ function LazyVideoThumbnail({ url, isBlenderVFX, fallbackThumbnail }: { url: str
       {isVisible ? (
         <video 
           src={`${url}#t=0.001`}
-          className={isBlenderVFX ? "w-full h-full object-contain pointer-events-none opacity-80" : "h-full w-auto max-w-[90vw] object-contain pointer-events-none opacity-80"}
+          className={isBlenderVFX ? "w-full h-full object-cover pointer-events-none opacity-80" : "h-full w-auto max-w-[90vw] object-contain pointer-events-none opacity-80"}
           preload={isBlenderVFX ? "none" : "metadata"}
           poster={isBlenderVFX ? fallbackThumbnail : undefined}
           muted
