@@ -425,21 +425,23 @@ export default function ProjectDetail() {
           </motion.section>
 
           {/* Process Breakdown Carousel Section */}
-          <motion.section 
-            className={`flex flex-col transition-opacity duration-700 pb-4 ${isMobileDevice() ? 'flex-1' : 'flex-1'}`}
-          >
-            <h2 className="text-xl md:text-2xl font-display font-medium mb-3 flex items-center gap-3 flex-none pl-2">
-              <Layers className="text-purple-500 w-5 h-5 md:w-6 md:h-6" /> Process Breakdown
-            </h2>
-            <VideoCarouselRow 
-              slots={breakdownSlots} 
-              activeIndex={activeBreakdown} 
-              onSelect={(idx) => { setActiveBreakdown(idx); setActiveVideo(null); }} 
-              projectTitle={project.title} 
-              fallbackThumbnail={project.thumbnail}
-              isBlenderVFX={isBlenderVFX}
-            />
-          </motion.section>
+          {project.id !== "space-battle" && (
+            <motion.section 
+              className={`flex flex-col transition-opacity duration-700 pb-4 ${isMobileDevice() ? 'flex-1' : 'flex-1'}`}
+            >
+              <h2 className="text-xl md:text-2xl font-display font-medium mb-3 flex items-center gap-3 flex-none pl-2">
+                <Layers className="text-purple-500 w-5 h-5 md:w-6 md:h-6" /> Process Breakdown
+              </h2>
+              <VideoCarouselRow 
+                slots={breakdownSlots} 
+                activeIndex={activeBreakdown} 
+                onSelect={(idx) => { setActiveBreakdown(idx); setActiveVideo(null); }} 
+                projectTitle={project.title} 
+                fallbackThumbnail={project.thumbnail}
+                isBlenderVFX={isBlenderVFX}
+              />
+            </motion.section>
+          )}
       </div>
     </motion.div>
   );

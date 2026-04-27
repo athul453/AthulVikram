@@ -56,6 +56,11 @@ export const PROJECTS: Project[] = [
     breakdownUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     roundupUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     softwares: ["Blender", "Nuke", "EmberGen"],
-    explanation: "Focusing on large-scale physics simulations. I used EmberGen for the fire and smoke, integrated into Blender via OpenVDB."
+    explanation: "Focusing on large-scale physics simulations. I used EmberGen for the fire and smoke, integrated into Blender via OpenVDB.",
+    finalOutUrls: [
+      "https://www.youtube.com/embed/OhSWCWq0Ve4",
+      "https://www.youtube.com/embed/QfEiJPNFeJE",
+      "https://www.youtube.com/embed/4RsITRenSig"
+    ]
   }
 ];
