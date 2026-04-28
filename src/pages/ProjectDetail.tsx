@@ -39,7 +39,7 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
   };
 
   return (
-    <div className={`relative w-full h-full flex flex-col items-center justify-center bg-black group overflow-hidden ${isBlenderVFX ? 'aspect-[9/16]' : ''}`}>
+    <div className={`relative w-full h-full flex flex-col items-center justify-center bg-black group overflow-hidden ${isBlenderVFX ? 'aspect-video' : ''}`}>
       {isBuffering && (
         <div className={`absolute inset-0 z-10 flex items-center justify-center transition-opacity duration-300 ${isBlenderVFX ? 'bg-black/80 backdrop-blur-md' : 'bg-black/50 backdrop-blur-sm'}`}>
           <Loader2 className="w-10 h-10 text-purple-500 animate-spin" />
@@ -56,7 +56,7 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
         onWaiting={() => setIsBuffering(true)}
         onPlaying={() => setIsBuffering(false)}
         onCanPlayThrough={() => setIsBuffering(false)}
-        className={isBlenderVFX ? "w-full h-full object-cover" : "h-full w-auto max-w-full object-contain"}
+        className={isBlenderVFX ? "w-full h-full object-contain" : "h-full w-auto max-w-full object-contain"}
         controlsList="nodownload"
         onContextMenu={(e) => e.preventDefault()}
       />
@@ -127,11 +127,11 @@ function LazyVideoThumbnail({ url, isBlenderVFX, fallbackThumbnail }: { url: str
   }, []);
 
   return (
-    <div ref={containerRef} className={`w-full h-full flex items-center justify-center ${isBlenderVFX ? 'aspect-[9/16]' : ''}`}>
+    <div ref={containerRef} className={`w-full h-full flex items-center justify-center ${isBlenderVFX ? 'aspect-video' : ''}`}>
       {isVisible ? (
         <video 
           src={`${url}#t=0.001`}
-          className="w-full h-full object-cover pointer-events-none opacity-80"
+          className="w-full h-full object-contain pointer-events-none opacity-80"
           preload="metadata"
           muted
           playsInline
@@ -235,7 +235,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                }
             }
           }}
-          className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none snap-center ${isBlenderVFX ? 'aspect-[9/16] w-auto' : (isYouTube || !slot.url ? 'aspect-video w-auto' : 'w-auto')} ${unifiedClasses}`}
+          className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none snap-center ${isBlenderVFX ? 'aspect-video w-auto' : (isYouTube || !slot.url ? 'aspect-video w-auto' : 'w-auto')} ${unifiedClasses}`}
         >
           {slot.url ? (
             activeIndex === idx ? (
