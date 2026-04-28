@@ -203,7 +203,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
   };
 
   return (
-    <div className="flex flex-col w-full relative">
+    <div className="flex flex-col flex-1 min-h-0 w-full relative">
       <div 
         ref={carouselRef}
         onMouseDown={handleMouseDown}
@@ -212,11 +212,11 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
         onMouseMove={handleMouseMove}
         onTouchStart={() => setIsDragging(false)}
         data-lenis-prevent="true"
-        className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 md:pb-8 pb-2 w-full hide-scrollbar items-center ${isDragging ? 'cursor-grabbing' : 'cursor-grab snap-x snap-mandatory'} px-4`}
+        className={`flex flex-1 min-h-0 overflow-x-auto md:gap-6 gap-4 pb-2 w-full hide-scrollbar items-center ${isDragging ? 'cursor-grabbing' : 'cursor-grab snap-x snap-mandatory'} px-4`}
       >
       {slots.map((slot, idx) => {
         const isActive = activeIndex === idx;
-        const unifiedClasses = `w-[85vw] md:w-[50vw] h-[250px] md:h-[35vh] transition-opacity duration-300 ease-out border ${isActive ? 'border-purple-500/50 shadow-[0_0_30px_rgba(192,38,211,0.3)] opacity-100' : 'border-white/5 opacity-60 brightness-75'}`;
+        const unifiedClasses = `h-[85%] md:h-[90%] transition-opacity duration-300 ease-out border ${isActive ? 'border-purple-500/50 shadow-[0_0_30px_rgba(192,38,211,0.3)] opacity-100' : 'border-white/5 opacity-60 brightness-75'}`;
         const isYouTube = slot.url && (slot.url.includes("youtube.com") || slot.url.includes("youtu.be"));
 
         return (
@@ -230,7 +230,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                if (!isBlenderVFX) onSelect(idx);
             }
           }}
-          className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none snap-center ${isBlenderVFX ? 'aspect-video w-auto' : (isYouTube || !slot.url ? 'aspect-video' : 'w-auto')} ${unifiedClasses}`}
+          className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none snap-center ${isBlenderVFX ? 'aspect-video w-auto' : (isYouTube || !slot.url ? 'aspect-video w-auto' : 'w-auto')} ${unifiedClasses}`}
         >
           {slot.url ? (
             activeIndex === idx ? (
@@ -286,7 +286,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
         );
       })}
       </div>
-      <div className="flex justify-end pr-4 text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1 mb-6 pointer-events-none">
+      <div className="flex justify-end pr-4 text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1 mb-2 pointer-events-none flex-none">
         Swipe Next &rarr;
       </div>
     </div>
@@ -337,9 +337,9 @@ export default function ProjectDetail() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className={`w-full flex flex-col pt-[100px] md:pt-[120px] pb-6 px-4 md:px-8 max-w-[1600px] mx-auto min-h-[100dvh] ${isBlenderVFX ? 'select-none' : ''}`}
+      className={`w-full flex flex-col pt-[80px] md:pt-[100px] pb-4 px-4 md:px-8 max-w-[1600px] mx-auto h-[100dvh] overflow-hidden ${isBlenderVFX ? 'select-none' : ''}`}
     >
-      <div className="flex items-center justify-between flex-none mb-6">
+      <div className="flex items-center justify-between flex-none mb-4 md:mb-6">
         <button 
           onClick={() => {
             sessionStorage.setItem('home-scroll-pos', 'works');
@@ -360,12 +360,12 @@ export default function ProjectDetail() {
         <div className="w-20 hidden sm:block flex-none" />
       </div>
 
-      <div className="flex-1 flex flex-col gap-6">
+      <div className="flex-1 flex flex-col gap-4 md:gap-6 min-h-0">
           {/* Final Render Carousel Section */}
           <motion.section 
-            className={`flex flex-col transition-opacity duration-700 flex-1 mb-8`}
+            className={`flex flex-col transition-opacity duration-700 flex-1 min-h-0`}
           >
-            <h2 className="text-xl md:text-2xl font-display font-medium mb-3 flex items-center gap-3 flex-none pl-2">
+            <h2 className="text-lg md:text-xl font-display font-medium mb-2 flex items-center gap-3 flex-none pl-2">
               <Play className="text-purple-500 w-5 h-5 md:w-6 md:h-6" /> Final Render
             </h2>
             <VideoCarouselRow 
@@ -381,9 +381,9 @@ export default function ProjectDetail() {
           {/* Process Breakdown Carousel Section */}
           {project.id !== "space-battle" && (
             <motion.section 
-              className={`flex flex-col transition-opacity duration-700 pb-4 flex-1`}
+              className={`flex flex-col transition-opacity duration-700 flex-1 min-h-0`}
             >
-              <h2 className="text-xl md:text-2xl font-display font-medium mb-3 flex items-center gap-3 flex-none pl-2">
+              <h2 className="text-lg md:text-xl font-display font-medium mb-2 flex items-center gap-3 flex-none pl-2">
                 <Layers className="text-purple-500 w-5 h-5 md:w-6 md:h-6" /> Process Breakdown
               </h2>
               <VideoCarouselRow 
