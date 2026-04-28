@@ -157,8 +157,20 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
-  // Wheel event listener removed to eliminate vertical scrolling stutter.
-  // We use data-lenis-prevent="true" on the container instead to allow native horizontal swiping without Lenis interference.
+  useEffect(() => {
+    const el = carouselRef.current;
+    if (!el) return;
+    const handleWheel = (e: WheelEvent) => {
+      // Only intercept horizontal wheel scrolls to prevent Lenis from hijacking them.
+      // We allow vertical wheel scrolls to bubble up so Lenis can scroll the page natively!
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        e.stopPropagation();
+      }
+    };
+    // Use passive: true to ensure no stuttering on the main thread!
+    el.addEventListener('wheel', handleWheel, { passive: true });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isMobileDevice()) return;
@@ -204,7 +216,6 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
     <div className="flex flex-col w-full relative">
       <div 
         ref={carouselRef}
-        data-lenis-prevent="true"
         onMouseDown={handleMouseDown}
         onMouseLeave={handleMouseLeave}
         onMouseUp={() => setIsDragging(false)}
