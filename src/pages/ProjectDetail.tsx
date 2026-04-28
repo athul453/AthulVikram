@@ -317,6 +317,18 @@ export default function ProjectDetail() {
   useEffect(() => {
     // Rely exclusively on native browser scroll restoration to prevent Lenis physics engine corruption (NaN freeze) when users scroll immediately during route transitions.
     window.scrollTo(0, 0);
+    
+    // Hard-lock body scrolling for mobile users to prevent any slight vertical scroll leakage
+    if (isMobileDevice()) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      return () => {
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+      };
+    }
   }, [navigate]);
 
   const [activeVideo, setActiveVideo] = useState<number | null>(null);
@@ -350,9 +362,9 @@ export default function ProjectDetail() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className={`w-full flex flex-col pt-[80px] md:pt-[100px] pb-4 px-4 md:px-8 max-w-[1600px] mx-auto h-[100dvh] overflow-hidden ${isBlenderVFX ? 'select-none' : ''}`}
+      className={`w-full flex flex-col pt-[70px] md:pt-[100px] pb-2 md:pb-4 px-2 md:px-8 max-w-[1600px] mx-auto ${isMobileDevice() ? 'fixed inset-0 z-50 bg-[#050505]' : 'h-[100dvh] overflow-hidden'} ${isBlenderVFX ? 'select-none' : ''}`}
     >
-      <div className="flex items-center justify-between flex-none mb-4 md:mb-6">
+      <div className="flex items-center justify-between flex-none mb-3 md:mb-6 px-2">
         <button 
           onClick={() => {
             sessionStorage.setItem('home-scroll-pos', 'works');
@@ -366,20 +378,20 @@ export default function ProjectDetail() {
         <motion.h1 
           animate={{ y: [0, -8, 0] }}
           transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          className="text-2xl md:text-4xl lg:text-5xl text-center font-display font-bold tracking-tight px-4 truncate"
+          className="text-xl md:text-4xl lg:text-5xl text-center font-display font-bold tracking-tight px-2 truncate"
         >
           {project.title}
         </motion.h1>
         <div className="w-20 hidden sm:block flex-none" />
       </div>
 
-      <div className="flex-1 flex flex-col gap-4 md:gap-6 min-h-0">
+      <div className="flex-1 flex flex-col gap-3 md:gap-6 min-h-0 px-2 md:px-0">
           {/* Final Render Carousel Section */}
           <motion.section 
             className={`flex flex-col transition-opacity duration-700 flex-1 min-h-0`}
           >
-            <h2 className="text-lg md:text-xl font-display font-medium mb-2 flex items-center gap-3 flex-none pl-2">
-              <Play className="text-purple-500 w-5 h-5 md:w-6 md:h-6" /> Final Render
+            <h2 className="text-base md:text-xl font-display font-medium mb-1 md:mb-2 flex items-center gap-2 flex-none pl-1">
+              <Play className="text-purple-500 w-4 h-4 md:w-6 md:h-6" /> Final Render
             </h2>
             <VideoCarouselRow 
               slots={carouselSlots} 
@@ -395,8 +407,8 @@ export default function ProjectDetail() {
           <motion.section 
             className={`flex flex-col transition-opacity duration-700 flex-1 min-h-0`}
           >
-            <h2 className="text-lg md:text-xl font-display font-medium mb-2 flex items-center gap-3 flex-none pl-2">
-              <Layers className="text-purple-500 w-5 h-5 md:w-6 md:h-6" /> Process Breakdown
+            <h2 className="text-base md:text-xl font-display font-medium mb-1 md:mb-2 flex items-center gap-2 flex-none pl-1">
+              <Layers className="text-purple-500 w-4 h-4 md:w-6 md:h-6" /> Process Breakdown
             </h2>
             <VideoCarouselRow 
               slots={breakdownSlots} 
