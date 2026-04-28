@@ -8,9 +8,7 @@ import { isMobileDevice } from "../utils/device";
 const getAutoplayUrl = (url: string) => {
   if (!url) return "";
   let base = url.includes("?") ? `${url}&autoplay=1` : `${url}?autoplay=1`;
-  if (isMobileDevice()) {
-    base += "&playsinline=1&fs=0&mute=1"; // Restore controls natively so users can always interact with blocked autoplays
-  }
+  base += "&playsinline=1&fs=0&mute=1"; // Restore controls natively so users can always interact with blocked autoplays
   return base;
 };
 
@@ -263,29 +261,26 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
           }
         }}
         data-lenis-prevent="true"
-        className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 md:pb-8 pb-2 w-full hide-scrollbar items-center transition-all ${isBlenderVFX ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'} ${isDragging ? 'scroll-auto' : 'md:scroll-smooth scroll-auto'} ${isMobileDevice() ? 'px-4' : ''}`}
+        className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 md:pb-8 pb-2 w-full hide-scrollbar items-center transition-all ${isBlenderVFX ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'} ${isDragging ? 'scroll-auto' : 'md:scroll-smooth scroll-auto'} px-4`}
       >
       {slots.map((slot, idx) => {
-        const isMobile = isMobileDevice();
         const isActive = activeIndex === idx;
-        const mobileClasses = `w-[85vw] h-[250px] transition-opacity duration-300 ease-out border ${isActive ? 'border-purple-500/50 shadow-[0_0_30px_rgba(192,38,211,0.3)] opacity-100' : 'border-white/5 opacity-60 brightness-75'}`;
-        const desktopClasses = `h-[200px] md:h-[300px]`;
+        const unifiedClasses = `w-[85vw] md:w-[75vw] h-[250px] md:h-[60vh] transition-opacity duration-300 ease-out border ${isActive ? 'border-purple-500/50 shadow-[0_0_30px_rgba(192,38,211,0.3)] opacity-100' : 'border-white/5 opacity-60 brightness-75'}`;
         const isYouTube = slot.url && (slot.url.includes("youtube.com") || slot.url.includes("youtu.be"));
 
         return (
         <motion.div 
           initial={false}
-          whileHover={!isMobile ? { scale: 1.02 } : undefined}
           transition={{ duration: 0.3, ease: "easeOut" }}
           key={idx}
           onMouseUp={(e) => handleMouseUp(e, idx)}
           onClick={() => {
-            if (isMobile && !isActive) {
+            if (!isActive) {
                if (!isBlenderVFX) onSelect(idx);
             }
           }}
           style={isBlenderVFX ? { transform: 'translateZ(0)', willChange: 'transform', backfaceVisibility: 'hidden' } : undefined}
-          className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${isBlenderVFX ? 'aspect-video w-auto' : (isYouTube || !slot.url ? 'aspect-video' : 'w-auto')} ${isMobile ? mobileClasses : desktopClasses}`}
+          className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${isBlenderVFX ? 'aspect-video w-auto' : (isYouTube || !slot.url ? 'aspect-video' : 'w-auto')} ${unifiedClasses}`}
         >
           {slot.url ? (
             activeIndex === idx ? (
@@ -296,11 +291,11 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                     src={getAutoplayUrl(slot.url)} 
                     className={`w-full h-full`}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen={!isMobile}
+                    allowFullScreen={false}
                     title={`${projectTitle} Slot ${idx + 1}`}
                   />
                 ) : (
-                  <LocalVideoPlayer url={slot.url} isMobile={isMobile} isBlenderVFX={isBlenderVFX} />
+                  <LocalVideoPlayer url={slot.url} isMobile={true} isBlenderVFX={isBlenderVFX} />
                 )}
               </>
             ) : (
@@ -341,11 +336,9 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
         );
       })}
       </div>
-      {isMobileDevice() && (
-        <div className="flex justify-end pr-4 text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1 mb-6 pointer-events-none">
-          Swipe Next &rarr;
-        </div>
-      )}
+      <div className="flex justify-end pr-4 text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1 mb-6 pointer-events-none">
+        Swipe Next &rarr;
+      </div>
     </div>
   );
 }
@@ -416,7 +409,7 @@ export default function ProjectDetail() {
       <div className="flex-1 flex flex-col gap-6">
           {/* Final Render Carousel Section */}
           <motion.section 
-            className={`flex flex-col transition-opacity duration-700 ${isMobileDevice() ? 'flex-1 mb-8' : 'flex-1'}`}
+            className={`flex flex-col transition-opacity duration-700 flex-1 mb-8`}
           >
             <h2 className="text-xl md:text-2xl font-display font-medium mb-3 flex items-center gap-3 flex-none pl-2">
               <Play className="text-purple-500 w-5 h-5 md:w-6 md:h-6" /> Final Render
@@ -434,7 +427,7 @@ export default function ProjectDetail() {
           {/* Process Breakdown Carousel Section */}
           {project.id !== "space-battle" && (
             <motion.section 
-              className={`flex flex-col transition-opacity duration-700 pb-4 ${isMobileDevice() ? 'flex-1' : 'flex-1'}`}
+              className={`flex flex-col transition-opacity duration-700 pb-4 flex-1`}
             >
               <h2 className="text-xl md:text-2xl font-display font-medium mb-3 flex items-center gap-3 flex-none pl-2">
                 <Layers className="text-purple-500 w-5 h-5 md:w-6 md:h-6" /> Process Breakdown
