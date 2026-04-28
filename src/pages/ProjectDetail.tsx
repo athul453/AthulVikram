@@ -157,8 +157,8 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
-  useEffect(() => {
-  }, []);
+  // Wheel event listener removed to eliminate vertical scrolling stutter.
+  // We use data-lenis-prevent="true" on the container instead to allow native horizontal swiping without Lenis interference.
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isMobileDevice()) return;
@@ -204,18 +204,13 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
     <div className="flex flex-col w-full relative">
       <div 
         ref={carouselRef}
+        data-lenis-prevent="true"
         onMouseDown={handleMouseDown}
         onMouseLeave={handleMouseLeave}
         onMouseUp={() => setIsDragging(false)}
         onMouseMove={handleMouseMove}
         onTouchStart={() => setIsDragging(false)}
-        onWheel={(e) => {
-          if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-            e.stopPropagation();
-          }
-        }}
-        data-lenis-prevent="true"
-        className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 md:pb-8 pb-2 w-full hide-scrollbar items-center transition-all ${isDragging ? 'cursor-grabbing scroll-auto' : 'cursor-grab scroll-smooth snap-x snap-mandatory'} px-4`}
+        className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 md:pb-8 pb-2 w-full hide-scrollbar items-center ${isDragging ? 'cursor-grabbing' : 'cursor-grab snap-x snap-mandatory'} px-4`}
       >
       {slots.map((slot, idx) => {
         const isActive = activeIndex === idx;
