@@ -127,22 +127,12 @@ function LazyVideoThumbnail({ url, isBlenderVFX, fallbackThumbnail }: { url: str
   return (
     <div ref={containerRef} className={`w-full h-full flex items-center justify-center ${isBlenderVFX ? 'aspect-video' : ''}`}>
       {isVisible ? (
-        isBlenderVFX ? (
-          <img 
-            src={fallbackThumbnail}
-            alt="Video Thumbnail"
-            loading="lazy"
-            className="w-full h-full object-cover pointer-events-none opacity-80"
-          />
-        ) : (
-          <video 
-            src={`${url}#t=0.001`}
-            className="h-full w-auto max-w-[90vw] object-contain pointer-events-none opacity-80"
-            preload="metadata"
-            muted
-            playsInline
-          />
-        )
+        <img 
+          src={fallbackThumbnail}
+          alt="Video Thumbnail"
+          loading="lazy"
+          className="w-full h-full object-cover pointer-events-none opacity-80"
+        />
       ) : (
         <Loader2 className="w-8 h-8 text-white/20 animate-spin" />
       )}
@@ -190,7 +180,6 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
     const x = e.pageX - carouselRef.current.offsetLeft;
     const walk = Math.abs(x - startX);
     if (walk < 5) {
-      if (!isBlenderVFX) onSelect(index);
       setTimeout(() => {
         if (carouselRef.current && carouselRef.current.children[index]) {
           carouselRef.current.children[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
@@ -246,6 +235,15 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
           {slot.url ? (
             activeIndex === idx ? (
               <>
+                <button 
+                   onClick={(e) => {
+                      e.stopPropagation();
+                      onSelect(-1);
+                   }}
+                   className="absolute top-4 left-4 z-[60] px-3 py-1.5 md:px-4 md:py-2 bg-black/80 hover:bg-black text-white text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-lg border border-white/20 backdrop-blur-md shadow-2xl transition-all"
+                >
+                  Close Video
+                </button>
                 {slot.url.includes("youtube.com") || slot.url.includes("youtu.be") ? (
                   <iframe 
                     key={`active-iframe-${idx}`}
@@ -333,6 +331,41 @@ export default function ProjectDetail() {
 
   const [activeVideo, setActiveVideo] = useState<number | null>(null);
   const [activeBreakdown, setActiveBreakdown] = useState<number | null>(null);
+  const [videoOpen, setVideoOpen] = useState(false);
+
+  useEffect(() => {
+    const isAnyVideoOpen = activeVideo !== null || activeBreakdown !== null;
+    if (isAnyVideoOpen && !videoOpen) {
+      window.history.pushState({ videoOpen: true }, '');
+      setVideoOpen(true);
+    } else if (!isAnyVideoOpen && videoOpen) {
+      setVideoOpen(false);
+    }
+  }, [activeVideo, activeBreakdown, videoOpen]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (videoOpen) {
+        setActiveVideo(null);
+        setActiveBreakdown(null);
+        setVideoOpen(false);
+        if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+        else if ((document as any).webkitFullscreenElement) (document as any).webkitExitFullscreen();
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [videoOpen]);
+
+  const closeVideo = () => {
+    setActiveVideo(null);
+    setActiveBreakdown(null);
+    if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+    else if ((document as any).webkitFullscreenElement) (document as any).webkitExitFullscreen();
+    if (videoOpen) {
+       window.history.back();
+    }
+  };
 
   if (!project) {
     if (typeof window !== 'undefined') window.location.href = '/';
@@ -396,7 +429,10 @@ export default function ProjectDetail() {
             <VideoCarouselRow 
               slots={carouselSlots} 
               activeIndex={activeVideo} 
-              onSelect={(idx) => { setActiveVideo(idx); setActiveBreakdown(null); }} 
+              onSelect={(idx) => { 
+                 if (idx === -1) closeVideo();
+                 else { setActiveVideo(idx); setActiveBreakdown(null); }
+              }} 
               projectTitle={project.title} 
               fallbackThumbnail={project.thumbnail}
               isBlenderVFX={isBlenderVFX}
@@ -404,21 +440,26 @@ export default function ProjectDetail() {
           </motion.section>
 
           {/* Process Breakdown Carousel Section */}
-          <motion.section 
-            className={`flex flex-col transition-opacity duration-700 flex-1 min-h-0`}
-          >
-            <h2 className="text-base md:text-xl font-display font-medium mb-1 md:mb-2 flex items-center gap-2 flex-none pl-1">
-              <Layers className="text-purple-500 w-4 h-4 md:w-6 md:h-6" /> Process Breakdown
-            </h2>
-            <VideoCarouselRow 
-              slots={breakdownSlots} 
-              activeIndex={activeBreakdown} 
-              onSelect={(idx) => { setActiveBreakdown(idx); setActiveVideo(null); }} 
-              projectTitle={project.title} 
-              fallbackThumbnail={project.thumbnail}
-              isBlenderVFX={isBlenderVFX}
-            />
-          </motion.section>
+          {project.id !== "space-battle" && (
+            <motion.section 
+              className={`flex flex-col transition-opacity duration-700 flex-1 min-h-0`}
+            >
+              <h2 className="text-base md:text-xl font-display font-medium mb-1 md:mb-2 flex items-center gap-2 flex-none pl-1">
+                <Layers className="text-purple-500 w-4 h-4 md:w-6 md:h-6" /> Process Breakdown
+              </h2>
+              <VideoCarouselRow 
+                slots={breakdownSlots} 
+                activeIndex={activeBreakdown} 
+                onSelect={(idx) => { 
+                   if (idx === -1) closeVideo();
+                   else { setActiveBreakdown(idx); setActiveVideo(null); }
+                }} 
+                projectTitle={project.title} 
+                fallbackThumbnail={project.thumbnail}
+                isBlenderVFX={isBlenderVFX}
+              />
+            </motion.section>
+          )}
       </div>
     </motion.div>
   );
