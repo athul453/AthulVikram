@@ -105,40 +105,15 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
 }
 
 function LazyVideoThumbnail({ url, isBlenderVFX, fallbackThumbnail }: { url: string; isBlenderVFX?: boolean; fallbackThumbnail?: string }) {
-  const [isVisible, setIsVisible] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "200px" } // Load slightly before it enters the viewport
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <div ref={containerRef} className={`w-full h-full flex items-center justify-center ${isBlenderVFX ? 'aspect-video' : ''}`}>
-      {isVisible ? (
-        <video 
-          src={`${url}#t=0.001`}
-          className="w-full h-full object-contain pointer-events-none opacity-80"
-          preload="metadata"
-          muted
-          playsInline
-        />
-      ) : (
-        <Loader2 className="w-8 h-8 text-white/20 animate-spin" />
-      )}
+    <div className={`w-full h-full flex items-center justify-center ${isBlenderVFX ? 'aspect-video' : ''}`}>
+      <video 
+        src={`${url}#t=0.001`}
+        className="w-full h-full object-contain pointer-events-none opacity-80"
+        preload="metadata"
+        muted
+        playsInline
+      />
     </div>
   );
 }
