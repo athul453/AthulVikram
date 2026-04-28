@@ -209,7 +209,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
         onMouseMove={handleMouseMove}
         onTouchStart={() => setIsDragging(false)}
         data-lenis-prevent="true"
-        className={`flex flex-1 min-h-0 overflow-x-auto md:gap-6 gap-4 pb-2 w-full hide-scrollbar items-center ${isDragging ? 'cursor-grabbing' : 'cursor-grab snap-x snap-mandatory'} px-4`}
+        className={`flex flex-1 min-h-0 overflow-x-auto overscroll-x-contain touch-pan-x md:gap-6 gap-4 pb-2 w-full hide-scrollbar items-center ${isDragging ? 'cursor-grabbing' : 'cursor-grab snap-x snap-mandatory'} px-4`}
       >
       {slots.map((slot, idx) => {
         const isActive = activeIndex === idx;
@@ -226,7 +226,9 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
             if (!isActive) {
                if (!isBlenderVFX) {
                  onSelect(idx);
-                 enterFullscreen(e.currentTarget as HTMLElement);
+                 if (!isMobileDevice()) {
+                   enterFullscreen(e.currentTarget as HTMLElement);
+                 }
                }
             }
           }}
@@ -277,8 +279,10 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                          if (isBlenderVFX) {
                             e.stopPropagation();
                             onSelect(idx);
-                            const target = e.currentTarget.closest('.group');
-                            if (target) enterFullscreen(target as HTMLElement);
+                            if (!isMobileDevice()) {
+                              const target = e.currentTarget.closest('.group');
+                              if (target) enterFullscreen(target as HTMLElement);
+                            }
                          }
                       }}
                    >
@@ -318,10 +322,12 @@ export default function ProjectDetail() {
     
     // Hard-lock body scrolling for mobile users to prevent any slight vertical scroll leakage
     if (isMobileDevice()) {
+      if (lenis) lenis.stop();
       document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
       document.body.style.width = '100%';
       return () => {
+        if (lenis) lenis.start();
         document.body.style.overflow = '';
         document.body.style.position = '';
         document.body.style.width = '';
