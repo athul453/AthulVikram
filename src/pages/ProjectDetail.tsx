@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { PROJECTS } from "../data/works";
@@ -316,6 +316,14 @@ export default function ProjectDetail() {
 
   const [activeVideo, setActiveVideo] = useState<number | null>(null);
   const [activeBreakdown, setActiveBreakdown] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(!isMobileDevice());
+
+  useEffect(() => {
+    if (!isMobileDevice()) {
+      const timer = setTimeout(() => setIsLoading(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   if (!project) {
     if (typeof window !== 'undefined') window.location.href = '/';
@@ -341,12 +349,32 @@ export default function ProjectDetail() {
       ];
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className={`w-full flex flex-col pt-[100px] md:pt-[120px] pb-6 px-4 md:px-8 max-w-[1600px] mx-auto min-h-[100dvh] overflow-x-hidden ${isBlenderVFX ? 'select-none' : ''}`}
-    >
+    <>
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            className="fixed inset-0 z-[100] bg-[#0a0a0a] flex flex-col items-center justify-center pointer-events-auto"
+          >
+            <Loader2 className="w-12 h-12 text-purple-500 animate-spin mb-6" />
+            <h2 className="text-3xl md:text-5xl font-display font-bold tracking-[0.2em] text-white uppercase animate-pulse">
+              {project.title}
+            </h2>
+            <div className="mt-4 text-[10px] sm:text-xs font-bold text-white/30 uppercase tracking-widest">
+              Initializing Assets...
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className={`w-full flex flex-col pt-[100px] md:pt-[120px] pb-6 px-4 md:px-8 max-w-[1600px] mx-auto min-h-[100dvh] overflow-x-hidden ${isBlenderVFX ? 'select-none' : ''}`}
+      >
       <div className="flex items-center justify-between flex-none mb-6">
         <button 
           onClick={() => {
@@ -402,5 +430,6 @@ export default function ProjectDetail() {
           )}
       </div>
     </motion.div>
+    </>
   );
 }
