@@ -157,22 +157,13 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
-  const scrollSpeed = useRef(0);
-  const scrollAnimationFrame = useRef<number | null>(null);
-
   useEffect(() => {
-    return () => {
-      if (scrollAnimationFrame.current) {
-        cancelAnimationFrame(scrollAnimationFrame.current);
-      }
-    };
   }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isMobileDevice()) return;
     if (!carouselRef.current) return;
     setIsDragging(true);
-    scrollSpeed.current = 0;
     setStartX(e.pageX - carouselRef.current.offsetLeft);
     setScrollLeft(carouselRef.current.scrollLeft);
   };
@@ -180,7 +171,6 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
   const handleMouseLeave = () => {
     if (isMobileDevice()) return;
     setIsDragging(false);
-    scrollSpeed.current = 0;
   };
 
   const handleMouseUp = (e: React.MouseEvent, index: number) => {
@@ -199,49 +189,14 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
     }
   };
 
-  const startAutoScroll = () => {
-    if (!scrollAnimationFrame.current) {
-      const scrollStep = () => {
-        if (carouselRef.current && scrollSpeed.current !== 0) {
-          carouselRef.current.scrollLeft += scrollSpeed.current;
-          scrollAnimationFrame.current = requestAnimationFrame(scrollStep);
-        } else {
-          scrollAnimationFrame.current = null;
-        }
-      };
-      scrollAnimationFrame.current = requestAnimationFrame(scrollStep);
-    }
-  };
-
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isMobileDevice()) return;
     if (!carouselRef.current) return;
     if (isDragging) {
-      scrollSpeed.current = 0;
       e.preventDefault();
       const x = e.pageX - carouselRef.current.offsetLeft;
       const walk = (x - startX) * 2;
       carouselRef.current.scrollLeft = scrollLeft - walk;
-    } else {
-      if (isMobileDevice()) {
-        scrollSpeed.current = 0;
-        return;
-      }
-      
-      const rect = carouselRef.current.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const edgeThreshold = 180;
-      const maxSpeed = 15;
-      
-      if (mouseX < edgeThreshold) {
-        scrollSpeed.current = -maxSpeed * (1 - Math.max(0, mouseX / edgeThreshold));
-        startAutoScroll();
-      } else if (mouseX > rect.width - edgeThreshold) {
-        scrollSpeed.current = maxSpeed * (Math.max(0, (mouseX - (rect.width - edgeThreshold)) / edgeThreshold));
-        startAutoScroll();
-      } else {
-        scrollSpeed.current = 0;
-      }
     }
   };
 
@@ -261,11 +216,11 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
           }
         }}
         data-lenis-prevent="true"
-        className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 md:pb-8 pb-2 w-full hide-scrollbar items-center transition-all ${isBlenderVFX ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'} ${isDragging ? 'scroll-auto' : 'md:scroll-smooth scroll-auto'} px-4`}
+        className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 md:pb-8 pb-2 w-full hide-scrollbar items-center transition-all ${isDragging ? 'cursor-grabbing scroll-auto' : 'cursor-grab md:scroll-smooth scroll-auto'} px-4`}
       >
       {slots.map((slot, idx) => {
         const isActive = activeIndex === idx;
-        const unifiedClasses = `w-[85vw] md:w-[75vw] h-[250px] md:h-[60vh] transition-opacity duration-300 ease-out border ${isActive ? 'border-purple-500/50 shadow-[0_0_30px_rgba(192,38,211,0.3)] opacity-100' : 'border-white/5 opacity-60 brightness-75'}`;
+        const unifiedClasses = `w-[85vw] md:w-[50vw] h-[250px] md:h-[35vh] transition-opacity duration-300 ease-out border ${isActive ? 'border-purple-500/50 shadow-[0_0_30px_rgba(192,38,211,0.3)] opacity-100' : 'border-white/5 opacity-60 brightness-75'}`;
         const isYouTube = slot.url && (slot.url.includes("youtube.com") || slot.url.includes("youtu.be"));
 
         return (
@@ -362,7 +317,10 @@ export default function ProjectDetail() {
   const [activeVideo, setActiveVideo] = useState<number | null>(null);
   const [activeBreakdown, setActiveBreakdown] = useState<number | null>(null);
 
-  if (!project) return <div className="p-20 text-center">Project not found</div>;
+  if (!project) {
+    if (typeof window !== 'undefined') window.location.href = '/';
+    return null;
+  }
 
   const isBlenderVFX = project.id === "cyber-city";
 
@@ -387,7 +345,7 @@ export default function ProjectDetail() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className={`w-full flex flex-col pt-[100px] md:pt-[120px] pb-6 px-4 md:px-8 max-w-[1600px] mx-auto ${isMobileDevice() ? 'min-h-[100dvh] overflow-x-hidden' : 'min-h-screen'} ${isBlenderVFX ? 'select-none [&_*]:cursor-default' : ''}`}
+      className={`w-full flex flex-col pt-[100px] md:pt-[120px] pb-6 px-4 md:px-8 max-w-[1600px] mx-auto min-h-[100dvh] overflow-x-hidden ${isBlenderVFX ? 'select-none' : ''}`}
     >
       <div className="flex items-center justify-between flex-none mb-6">
         <button 
