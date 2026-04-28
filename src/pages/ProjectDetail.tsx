@@ -298,12 +298,6 @@ export default function ProjectDetail() {
     // Rely exclusively on native browser scroll restoration to prevent Lenis physics engine corruption (NaN freeze) when users scroll immediately during route transitions.
     window.scrollTo(0, 0);
     
-    // Clear the scroll hijacking flag on mobile so the hardware back button 
-    // natively restores the exact pixel position instead of jumping to the section top.
-    if (isMobileDevice()) {
-      sessionStorage.removeItem('home-scroll-pos');
-    }
-    
     // Hard-lock body scrolling for mobile users to prevent any slight vertical scroll leakage
     if (isMobileDevice()) {
       if (lenis) lenis.stop();

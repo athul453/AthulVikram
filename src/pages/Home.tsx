@@ -107,7 +107,7 @@ export default function Home() {
       
       const worksSection = document.getElementById('works');
       // Target the exact absolute top boundary of the container, minus 100px to perfectly clear the backdrop-blur fixed Nav Bar overlap
-      const savedScroll = worksSection ? worksSection.offsetTop - 100 : parseInt(savedScrollRaw, 10);
+      const savedScroll = isMobile ? parseInt(savedScrollRaw, 10) : (worksSection ? worksSection.offsetTop - 100 : parseInt(savedScrollRaw, 10));
       
       if (lenis) lenis.stop();
       
@@ -354,7 +354,7 @@ export default function Home() {
             >
               <div 
                 onClick={() => {
-                  sessionStorage.setItem('home-scroll-pos', 'works');
+                  sessionStorage.setItem('home-scroll-pos', isMobile ? window.scrollY.toString() : 'works');
                   navigate(`/project/${project.id}`);
                 }}
                 className="group cursor-pointer h-full flex flex-col glass rounded-2xl overflow-hidden border border-white/5 hover:border-purple-500/40 transition-colors duration-500 select-none touch-pan-y"
