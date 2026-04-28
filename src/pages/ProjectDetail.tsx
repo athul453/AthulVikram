@@ -208,15 +208,14 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
         onMouseLeave={handleMouseLeave}
         onMouseUp={() => setIsDragging(false)}
         onMouseMove={handleMouseMove}
-        onTouchStart={() => { scrollSpeed.current = 0; setIsDragging(false); }}
-        onTouchEnd={() => { scrollSpeed.current = 0; }}
+        onTouchStart={() => setIsDragging(false)}
         onWheel={(e) => {
           if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
             e.stopPropagation();
           }
         }}
         data-lenis-prevent="true"
-        className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 md:pb-8 pb-2 w-full hide-scrollbar items-center transition-all ${isDragging ? 'cursor-grabbing scroll-auto' : 'cursor-grab md:scroll-smooth scroll-auto'} px-4`}
+        className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 md:pb-8 pb-2 w-full hide-scrollbar items-center transition-all ${isDragging ? 'cursor-grabbing scroll-auto' : 'cursor-grab scroll-smooth snap-x snap-mandatory'} px-4`}
       >
       {slots.map((slot, idx) => {
         const isActive = activeIndex === idx;
@@ -235,7 +234,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
             }
           }}
           style={{ transform: 'translateZ(0)', willChange: 'transform', backfaceVisibility: 'hidden' }}
-          className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${isBlenderVFX ? 'aspect-video w-auto' : (isYouTube || !slot.url ? 'aspect-video' : 'w-auto')} ${unifiedClasses}`}
+          className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none snap-center ${isBlenderVFX ? 'aspect-video w-auto' : (isYouTube || !slot.url ? 'aspect-video' : 'w-auto')} ${unifiedClasses}`}
         >
           {slot.url ? (
             activeIndex === idx ? (
@@ -345,7 +344,7 @@ export default function ProjectDetail() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className={`w-full flex flex-col pt-[100px] md:pt-[120px] pb-6 px-4 md:px-8 max-w-[1600px] mx-auto min-h-[100dvh] overflow-x-hidden ${isBlenderVFX ? 'select-none' : ''}`}
+      className={`w-full flex flex-col pt-[100px] md:pt-[120px] pb-6 px-4 md:px-8 max-w-[1600px] mx-auto min-h-[100dvh] ${isBlenderVFX ? 'select-none' : ''}`}
     >
       <div className="flex items-center justify-between flex-none mb-6">
         <button 
