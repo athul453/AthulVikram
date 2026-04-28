@@ -252,7 +252,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                 <div className={`absolute inset-0 z-30 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all ${isBlenderVFX ? 'pointer-events-none' : 'pointer-events-none'}`}>
                    <div 
                       style={isBlenderVFX ? { cursor: 'pointer' } : undefined}
-                      className={`w-16 h-16 md:w-20 md:h-20 bg-purple-600/90 rounded-full flex items-center justify-center backdrop-blur-md shadow-2xl group-hover:scale-110 transition-transform ${isBlenderVFX ? 'pointer-events-auto' : ''}`}
+                      className={`flex items-center justify-center group-hover:scale-110 transition-transform ${isBlenderVFX ? 'pointer-events-auto' : ''}`}
                       onClick={(e) => {
                          if (isBlenderVFX) {
                             e.stopPropagation();
@@ -264,7 +264,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                          }
                       }}
                    >
-                      <Play className="text-white w-6 h-6 md:w-8 md:h-8 ml-2 fill-white pointer-events-none" />
+                      <Play className="text-white w-12 h-12 md:w-16 md:h-16 fill-white pointer-events-none drop-shadow-2xl" />
                    </div>
                 </div>
               </>
