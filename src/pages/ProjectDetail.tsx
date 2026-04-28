@@ -312,12 +312,9 @@ export default function ProjectDetail() {
   const lenis = useLenis();
 
   useEffect(() => {
-    // Assert structural dominance over the physics engine upon route entry to ruthlessly snap directly to the absolute top of the layout!
-    if (lenis) {
-       lenis.scrollTo(0, { immediate: true, force: true });
-    }
+    // Rely exclusively on native browser scroll restoration to prevent Lenis physics engine corruption (NaN freeze) when users scroll immediately during route transitions.
     window.scrollTo(0, 0);
-  }, [navigate, lenis]);
+  }, [navigate]);
 
   const [activeVideo, setActiveVideo] = useState<number | null>(null);
   const [activeBreakdown, setActiveBreakdown] = useState<number | null>(null);
