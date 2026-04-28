@@ -57,6 +57,8 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
         onPlaying={() => setIsBuffering(false)}
         onCanPlayThrough={() => setIsBuffering(false)}
         className={isBlenderVFX ? "w-full h-full object-contain" : "h-full w-auto max-w-full object-contain"}
+        controlsList="nodownload"
+        onContextMenu={(e) => e.preventDefault()}
       />
       {!isMobile && (
         <>
@@ -362,6 +364,42 @@ export default function ProjectDetail() {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, [videoOpen]);
+
+  // Anti-Screen-Recording & Web Capture Protection
+  useEffect(() => {
+    // 1. Block web-based screen recording (getDisplayMedia API)
+    const originalGetDisplayMedia = navigator.mediaDevices?.getDisplayMedia;
+    if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+      Object.defineProperty(navigator.mediaDevices, 'getDisplayMedia', {
+        value: () => Promise.reject(new Error('Screen recording is disabled for copyright protection.')),
+        configurable: true
+      });
+    }
+
+    // 2. Block common screen recording keyboard shortcuts
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd+Shift+5 (Mac Screen Record) or Win+Alt+R (Windows Game Bar Record)
+      if (
+        (e.metaKey && e.shiftKey && e.key === '5') || 
+        (e.metaKey && e.altKey && (e.key === 'r' || e.key === 'R'))
+      ) {
+        e.preventDefault();
+        alert('Screen recording is disabled for copyright protection. Screenshots are allowed.');
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      if (navigator.mediaDevices && originalGetDisplayMedia) {
+        Object.defineProperty(navigator.mediaDevices, 'getDisplayMedia', {
+          value: originalGetDisplayMedia,
+          configurable: true
+        });
+      }
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   const closeVideo = () => {
     setActiveVideo(null);
