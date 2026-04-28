@@ -157,6 +157,14 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
+  const enterFullscreen = (el: HTMLElement) => {
+    if (el.requestFullscreen) {
+      el.requestFullscreen().catch(() => {});
+    } else if ((el as any).webkitRequestFullscreen) {
+      (el as any).webkitRequestFullscreen();
+    }
+  };
+
   useEffect(() => {
     // Rely exclusively on Lenis data-lenis-prevent attribute for horizontal scroll areas
     // rather than manual wheel interception, which can cause severe freezing on certain sections.
@@ -225,9 +233,12 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
           transition={{ duration: 0.3, ease: "easeOut" }}
           key={idx}
           onMouseUp={(e) => handleMouseUp(e, idx)}
-          onClick={() => {
+          onClick={(e) => {
             if (!isActive) {
-               if (!isBlenderVFX) onSelect(idx);
+               if (!isBlenderVFX) {
+                 onSelect(idx);
+                 enterFullscreen(e.currentTarget as HTMLElement);
+               }
             }
           }}
           className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none snap-center ${isBlenderVFX ? 'aspect-video w-auto' : (isYouTube || !slot.url ? 'aspect-video w-auto' : 'w-auto')} ${unifiedClasses}`}
@@ -241,7 +252,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                     src={getAutoplayUrl(slot.url)} 
                     className={`w-full h-full`}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen={false}
+                    allowFullScreen={true}
                     title={`${projectTitle} Slot ${idx + 1}`}
                   />
                 ) : (
@@ -268,6 +279,8 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                          if (isBlenderVFX) {
                             e.stopPropagation();
                             onSelect(idx);
+                            const target = e.currentTarget.closest('.group');
+                            if (target) enterFullscreen(target as HTMLElement);
                          }
                       }}
                    >
@@ -314,7 +327,7 @@ export default function ProjectDetail() {
     return null;
   }
 
-  const isBlenderVFX = project.id === "cyber-city";
+  const isBlenderVFX = project.id === "cyber-city" || project.id === "space-battle";
 
   const carouselSlots = project.finalOutUrls && project.finalOutUrls.length > 0
     ? project.finalOutUrls.map((url, index) => ({ url, title: `CLIP 0${index + 1}` }))
@@ -379,23 +392,21 @@ export default function ProjectDetail() {
           </motion.section>
 
           {/* Process Breakdown Carousel Section */}
-          {project.id !== "space-battle" && (
-            <motion.section 
-              className={`flex flex-col transition-opacity duration-700 flex-1 min-h-0`}
-            >
-              <h2 className="text-lg md:text-xl font-display font-medium mb-2 flex items-center gap-3 flex-none pl-2">
-                <Layers className="text-purple-500 w-5 h-5 md:w-6 md:h-6" /> Process Breakdown
-              </h2>
-              <VideoCarouselRow 
-                slots={breakdownSlots} 
-                activeIndex={activeBreakdown} 
-                onSelect={(idx) => { setActiveBreakdown(idx); setActiveVideo(null); }} 
-                projectTitle={project.title} 
-                fallbackThumbnail={project.thumbnail}
-                isBlenderVFX={isBlenderVFX}
-              />
-            </motion.section>
-          )}
+          <motion.section 
+            className={`flex flex-col transition-opacity duration-700 flex-1 min-h-0`}
+          >
+            <h2 className="text-lg md:text-xl font-display font-medium mb-2 flex items-center gap-3 flex-none pl-2">
+              <Layers className="text-purple-500 w-5 h-5 md:w-6 md:h-6" /> Process Breakdown
+            </h2>
+            <VideoCarouselRow 
+              slots={breakdownSlots} 
+              activeIndex={activeBreakdown} 
+              onSelect={(idx) => { setActiveBreakdown(idx); setActiveVideo(null); }} 
+              projectTitle={project.title} 
+              fallbackThumbnail={project.thumbnail}
+              isBlenderVFX={isBlenderVFX}
+            />
+          </motion.section>
       </div>
     </motion.div>
   );
