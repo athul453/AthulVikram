@@ -39,7 +39,7 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
   };
 
   return (
-    <div style={{ transform: 'translateZ(0)', willChange: 'transform', backfaceVisibility: 'hidden' }} className={`relative w-full h-full flex flex-col items-center justify-center bg-black group overflow-hidden ${isBlenderVFX ? 'aspect-video' : ''}`}>
+    <div className={`relative w-full h-full flex flex-col items-center justify-center bg-black group overflow-hidden ${isBlenderVFX ? 'aspect-video' : ''}`}>
       {isBuffering && (
         <div className={`absolute inset-0 z-10 flex items-center justify-center transition-opacity duration-300 ${isBlenderVFX ? 'bg-black/80 backdrop-blur-md' : 'bg-black/50 backdrop-blur-sm'}`}>
           <Loader2 className="w-10 h-10 text-purple-500 animate-spin" />
@@ -52,7 +52,7 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
         controls={true}
         playsInline
         loop
-        preload="auto"
+        preload="metadata"
         onWaiting={() => setIsBuffering(true)}
         onPlaying={() => setIsBuffering(false)}
         onCanPlayThrough={() => setIsBuffering(false)}
@@ -158,18 +158,8 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
   const [scrollLeft, setScrollLeft] = useState(0);
 
   useEffect(() => {
-    const el = carouselRef.current;
-    if (!el) return;
-    const handleWheel = (e: WheelEvent) => {
-      // Only intercept horizontal wheel scrolls to prevent Lenis from hijacking them.
-      // We allow vertical wheel scrolls to bubble up so Lenis can scroll the page natively!
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-        e.stopPropagation();
-      }
-    };
-    // Use passive: true to ensure no stuttering on the main thread!
-    el.addEventListener('wheel', handleWheel, { passive: true });
-    return () => el.removeEventListener('wheel', handleWheel);
+    // Rely exclusively on Lenis data-lenis-prevent attribute for horizontal scroll areas
+    // rather than manual wheel interception, which can cause severe freezing on certain sections.
   }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -221,6 +211,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
         onMouseUp={() => setIsDragging(false)}
         onMouseMove={handleMouseMove}
         onTouchStart={() => setIsDragging(false)}
+        data-lenis-prevent="true"
         className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 md:pb-8 pb-2 w-full hide-scrollbar items-center ${isDragging ? 'cursor-grabbing' : 'cursor-grab snap-x snap-mandatory'} px-4`}
       >
       {slots.map((slot, idx) => {
@@ -239,7 +230,6 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                if (!isBlenderVFX) onSelect(idx);
             }
           }}
-          style={{ transform: 'translateZ(0)', willChange: 'transform', backfaceVisibility: 'hidden' }}
           className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none snap-center ${isBlenderVFX ? 'aspect-video w-auto' : (isYouTube || !slot.url ? 'aspect-video' : 'w-auto')} ${unifiedClasses}`}
         >
           {slot.url ? (
