@@ -39,7 +39,7 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
   };
 
   return (
-    <div style={isBlenderVFX ? { transform: 'translateZ(0)', willChange: 'transform', backfaceVisibility: 'hidden' } : undefined} className={`relative w-full h-full flex flex-col items-center justify-center bg-black group overflow-hidden ${isBlenderVFX ? 'aspect-video' : ''}`}>
+    <div style={{ transform: 'translateZ(0)', willChange: 'transform', backfaceVisibility: 'hidden' }} className={`relative w-full h-full flex flex-col items-center justify-center bg-black group overflow-hidden ${isBlenderVFX ? 'aspect-video' : ''}`}>
       {isBuffering && (
         <div className={`absolute inset-0 z-10 flex items-center justify-center transition-opacity duration-300 ${isBlenderVFX ? 'bg-black/80 backdrop-blur-md' : 'bg-black/50 backdrop-blur-sm'}`}>
           <Loader2 className="w-10 h-10 text-purple-500 animate-spin" />
@@ -234,7 +234,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                if (!isBlenderVFX) onSelect(idx);
             }
           }}
-          style={isBlenderVFX ? { transform: 'translateZ(0)', willChange: 'transform', backfaceVisibility: 'hidden' } : undefined}
+          style={{ transform: 'translateZ(0)', willChange: 'transform', backfaceVisibility: 'hidden' }}
           className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none ${isBlenderVFX ? 'aspect-video w-auto' : (isYouTube || !slot.url ? 'aspect-video' : 'w-auto')} ${unifiedClasses}`}
         >
           {slot.url ? (
