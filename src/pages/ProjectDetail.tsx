@@ -445,8 +445,16 @@ export default function ProjectDetail() {
       <div className="flex items-center justify-between flex-none mb-3 md:mb-6 px-2">
         <button 
           onClick={() => {
-            sessionStorage.setItem('home-scroll-pos', 'works');
-            navigate("/");
+            if (isMobileDevice()) {
+              if (window.history.length > 1) {
+                navigate(-1);
+              } else {
+                navigate("/");
+              }
+            } else {
+              sessionStorage.setItem('home-scroll-pos', 'works');
+              navigate("/");
+            }
           }}
           className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors group flex-none"
         >
