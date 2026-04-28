@@ -248,22 +248,23 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
   };
 
   return (
-    <div 
-      ref={carouselRef}
-      onMouseDown={handleMouseDown}
-      onMouseLeave={handleMouseLeave}
-      onMouseUp={() => setIsDragging(false)}
-      onMouseMove={handleMouseMove}
-      onTouchStart={() => { scrollSpeed.current = 0; setIsDragging(false); }}
-      onTouchEnd={() => { scrollSpeed.current = 0; }}
-      onWheel={(e) => {
-        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-          e.stopPropagation();
-        }
-      }}
-      data-lenis-prevent="true"
-      className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 pb-8 w-full hide-scrollbar items-center transition-all ${isBlenderVFX ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'} ${isDragging ? 'scroll-auto' : 'md:scroll-smooth scroll-auto'} ${isMobileDevice() ? 'px-4' : ''}`}
-    >
+    <div className="flex flex-col w-full relative">
+      <div 
+        ref={carouselRef}
+        onMouseDown={handleMouseDown}
+        onMouseLeave={handleMouseLeave}
+        onMouseUp={() => setIsDragging(false)}
+        onMouseMove={handleMouseMove}
+        onTouchStart={() => { scrollSpeed.current = 0; setIsDragging(false); }}
+        onTouchEnd={() => { scrollSpeed.current = 0; }}
+        onWheel={(e) => {
+          if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+            e.stopPropagation();
+          }
+        }}
+        data-lenis-prevent="true"
+        className={`flex flex-1 overflow-x-auto md:gap-8 gap-4 md:pb-8 pb-2 w-full hide-scrollbar items-center transition-all ${isBlenderVFX ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'} ${isDragging ? 'scroll-auto' : 'md:scroll-smooth scroll-auto'} ${isMobileDevice() ? 'px-4' : ''}`}
+      >
       {slots.map((slot, idx) => {
         const isMobile = isMobileDevice();
         const isActive = activeIndex === idx;
@@ -339,6 +340,12 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
         </motion.div>
         );
       })}
+      </div>
+      {isMobileDevice() && (
+        <div className="flex justify-end pr-4 text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1 mb-6 pointer-events-none">
+          Swipe Next &rarr;
+        </div>
+      )}
     </div>
   );
 }
@@ -387,7 +394,7 @@ export default function ProjectDetail() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className={`w-full flex flex-col pt-[100px] md:pt-[120px] pb-6 px-4 md:px-8 max-w-[1600px] mx-auto ${isMobileDevice() ? 'h-[100dvh] overflow-hidden fixed inset-0' : 'min-h-screen'} ${isBlenderVFX ? 'select-none [&_*]:cursor-default' : ''}`}
+      className={`w-full flex flex-col pt-[100px] md:pt-[120px] pb-6 px-4 md:px-8 max-w-[1600px] mx-auto ${isMobileDevice() ? 'min-h-[100dvh] overflow-x-hidden' : 'min-h-screen'} ${isBlenderVFX ? 'select-none [&_*]:cursor-default' : ''}`}
     >
       <div className="flex items-center justify-between flex-none mb-6">
         <button 
