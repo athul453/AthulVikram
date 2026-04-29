@@ -360,7 +360,11 @@ export default function Home() {
             >
               <div 
                 onClick={() => {
-                  sessionStorage.setItem('home-scroll-pos', 'works');
+                  if (isMobile) {
+                    sessionStorage.setItem('home-scroll-pos', lastScrollPos.current.toString());
+                  } else {
+                    sessionStorage.setItem('home-scroll-pos', 'works');
+                  }
                   navigate(`/project/${project.id}`);
                 }}
                 className="group cursor-pointer h-full flex flex-col glass rounded-2xl overflow-hidden border border-white/5 hover:border-purple-500/40 transition-colors duration-500 select-none touch-pan-y"
