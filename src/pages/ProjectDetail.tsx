@@ -420,6 +420,7 @@ export default function ProjectDetail() {
       <div className="flex items-center justify-between flex-none mb-3 md:mb-6 px-2">
         <button 
           onClick={() => {
+            sessionStorage.setItem('home-scroll-pos', 'works');
             if (isMobileDevice()) {
               if (window.history.length > 1) {
                 navigate(-1);
@@ -427,7 +428,6 @@ export default function ProjectDetail() {
                 navigate("/");
               }
             } else {
-              sessionStorage.setItem('home-scroll-pos', 'works');
               navigate("/");
             }
           }}
