@@ -105,29 +105,35 @@ export default function Home() {
     if (savedScrollRaw) {
       setIsRestoring(true);
       
-      const worksSection = document.getElementById('works');
-      
-      let savedScroll;
-      if (savedScrollRaw === 'works') {
-        // Target the exact absolute top boundary of the container, minus 100px to perfectly clear the backdrop-blur fixed Nav Bar overlap
-        savedScroll = worksSection ? worksSection.offsetTop - 100 : 0;
-      } else {
-        savedScroll = parseInt(savedScrollRaw, 10);
-      }
-      
       if (lenis) lenis.stop();
       
-      // Delay explicitly for outliving Chrome's synchronous hardware popstate clamp natively and mobile layout reflows!
-      setTimeout(() => {
+      // Actively lock the scroll for 400ms to completely outlive the 300ms AnimatePresence exit
+      // This mathematically overpowers the native iOS/Chrome layout reflows caused by body position changes!
+      let attempts = 0;
+      const lockInterval = setInterval(() => {
+        const worksSection = document.getElementById('works');
+        let savedScroll = 0;
+        
+        if (savedScrollRaw === 'works') {
+          savedScroll = worksSection ? worksSection.offsetTop - 100 : 0;
+        } else {
+          savedScroll = parseInt(savedScrollRaw, 10);
+        }
+        
         window.scrollTo(0, savedScroll);
         if (lenis) {
            lenis.resize();
            lenis.scrollTo(savedScroll, { immediate: true, force: true });
-           lenis.start();
         }
-        sessionStorage.removeItem('home-scroll-pos');
-        setIsRestoring(false);
-      }, 300);
+        
+        attempts++;
+        if (attempts >= 8) {
+           clearInterval(lockInterval);
+           if (lenis) lenis.start();
+           sessionStorage.removeItem('home-scroll-pos');
+           setIsRestoring(false);
+        }
+      }, 50);
     } else {
       setIsRestoring(false);
     }
