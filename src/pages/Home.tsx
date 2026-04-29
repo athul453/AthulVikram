@@ -361,7 +361,7 @@ export default function Home() {
               <div 
                 onClick={() => {
                   if (isMobile) {
-                    sessionStorage.setItem('home-scroll-pos', lastScrollPos.current.toString());
+                    sessionStorage.setItem('home-scroll-pos', 'works');
                   } else {
                     sessionStorage.setItem('home-scroll-pos', 'works');
                   }
