@@ -117,9 +117,9 @@ export default function Home() {
       
       if (lenis) lenis.stop();
       
-      // Delay explicitly for outliving Chrome's synchronous hardware popstate clamp natively
+      // Delay explicitly for outliving Chrome's synchronous hardware popstate clamp natively and mobile layout reflows!
       setTimeout(() => {
-        window.scrollTo({ top: savedScroll, behavior: 'instant' });
+        window.scrollTo(0, savedScroll);
         if (lenis) {
            lenis.resize();
            lenis.scrollTo(savedScroll, { immediate: true, force: true });
@@ -127,7 +127,7 @@ export default function Home() {
         }
         sessionStorage.removeItem('home-scroll-pos');
         setIsRestoring(false);
-      }, 50);
+      }, 300);
     } else {
       setIsRestoring(false);
     }

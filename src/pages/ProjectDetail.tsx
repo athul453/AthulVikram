@@ -52,7 +52,8 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
         controls={true}
         playsInline
         loop
-        preload="metadata"
+        preload={isMobile ? "auto" : "metadata"}
+        muted={isMobile}
         onWaiting={() => setIsBuffering(true)}
         onPlaying={() => setIsBuffering(false)}
         onCanPlayThrough={() => setIsBuffering(false)}
@@ -234,7 +235,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                     title={`${projectTitle} Slot ${idx + 1}`}
                   />
                 ) : (
-                  <LocalVideoPlayer url={slot.url} isMobile={true} isBlenderVFX={isBlenderVFX} />
+                  <LocalVideoPlayer url={slot.url} isMobile={isMobileDevice()} isBlenderVFX={isBlenderVFX} />
                 )}
               </>
             ) : (
