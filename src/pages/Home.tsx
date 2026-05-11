@@ -343,15 +343,15 @@ export default function Home() {
               transition={{ delay: 0.6, duration: 0.8 }}
               className="mt-16 flex gap-6 pointer-events-auto"
             >
-              <a href="https://www.linkedin.com/in/athul-vikram-6508a3342?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-[#0A66C2] transition-colors duration-300 p-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 hover:border-[#0A66C2]/30 group">
+              <button onClick={() => window.open('https://www.linkedin.com/in/athul-vikram-6508a3342?utm_source=share_via&utm_content=profile&utm_medium=member_android', '_blank', 'noopener,noreferrer')} className="text-zinc-500 hover:text-[#0A66C2] transition-colors duration-300 p-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 hover:border-[#0A66C2]/30 group cursor-pointer">
                 <Linkedin className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
-              </a>
-              <a href="https://www.instagram.com/athul_vikram_?igsh=MWhjNHZnb3A3b2M5ZA==" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-[#E1306C] transition-colors duration-300 p-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 hover:border-[#E1306C]/30 group">
+              </button>
+              <button onClick={() => window.open('https://www.instagram.com/athul_vikram_?igsh=MWhjNHZnb3A3b2M5ZA==', '_blank', 'noopener,noreferrer')} className="text-zinc-500 hover:text-[#E1306C] transition-colors duration-300 p-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 hover:border-[#E1306C]/30 group cursor-pointer">
                 <Instagram className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
-              </a>
-              <a href="https://youtube.com/@chillyeditz7298?si=KWm95HVl8fgt4sB3" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-[#FF0000] transition-colors duration-300 p-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 hover:border-[#FF0000]/30 group">
+              </button>
+              <button onClick={() => window.open('https://youtube.com/@chillyeditz7298?si=KWm95HVl8fgt4sB3', '_blank', 'noopener,noreferrer')} className="text-zinc-500 hover:text-[#FF0000] transition-colors duration-300 p-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 hover:border-[#FF0000]/30 group cursor-pointer">
                 <Youtube className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
-              </a>
+              </button>
             </motion.div>
             
         </div>
