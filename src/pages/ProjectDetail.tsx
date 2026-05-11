@@ -58,6 +58,7 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX, force16by9 }: { url: st
         onPlaying={() => setIsBuffering(false)}
         onCanPlayThrough={() => setIsBuffering(false)}
         className={isBlenderVFX || force16by9 ? "w-full h-full object-contain" : "h-full w-auto max-w-full object-contain"}
+        style={url.includes("Video-526.mp4") ? { transform: "rotate(-90deg) scale(1.7778)" } : undefined}
         controlsList="nodownload"
         onContextMenu={(e) => e.preventDefault()}
       />
@@ -111,6 +112,7 @@ function LazyVideoThumbnail({ url, isBlenderVFX, fallbackThumbnail, force16by9 }
       <video 
         src={`${url}#t=0.001`}
         className="w-full h-full object-contain pointer-events-none opacity-80"
+        style={url.includes("Video-526.mp4") ? { transform: "rotate(-90deg) scale(1.7778)" } : undefined}
         preload="metadata"
         muted
         playsInline
