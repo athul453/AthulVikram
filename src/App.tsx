@@ -1,14 +1,39 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
 import Home from "./pages/Home";
 import ProjectDetail from "./pages/ProjectDetail";
 import { motion, AnimatePresence } from "motion/react";
 import { ReactLenis } from "lenis/react";
+
 function AnimatedRoutes() {
   const location = useLocation();
+  const navigate = useNavigate();
   const isHome = location.pathname === '/';
   
+  const handleGalleryClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isHome) {
+      document.getElementById('works')?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate('/');
+      setTimeout(() => {
+        document.getElementById('works')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  };
+
   return (
     <>
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-[60] px-6 py-8 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent backdrop-blur-sm pointer-events-auto">
+        <Link to="/" className="text-2xl font-display font-bold tracking-tighter hover:text-purple-400 transition-colors">
+          AV<span className="text-purple-500">.</span>
+        </Link>
+        <div className="flex gap-8 text-xs uppercase tracking-widest font-bold text-zinc-400">
+          <button onClick={handleGalleryClick} className="hover:text-white transition-colors uppercase tracking-widest font-bold text-xs cursor-pointer">GALLERY</button>
+          <a href="mailto:athulvikram2003@gmail.com" className="hover:text-white transition-colors uppercase tracking-widest font-bold text-xs">CONTACT</a>
+        </div>
+      </nav>
+
       {/* PERFECT VRAM RETENTION: Home NEVER unmounts! The 67MB model sits dormant in memory, mathematically eradicating the 800ms parsing lag. */}
       <div 
          style={{ 
@@ -59,17 +84,6 @@ export default function App() {
     <ReactLenis root>
       <Router>
       <div className="relative">
-        {/* Navigation */}
-        <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-8 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent backdrop-blur-sm">
-          <Link to="/" className="text-2xl font-display font-bold tracking-tighter hover:text-purple-400 transition-colors">
-            AV<span className="text-purple-500">.</span>
-          </Link>
-          <div className="flex gap-8 text-xs uppercase tracking-widest font-bold text-zinc-400">
-            <Link to="/" className="hover:text-white transition-colors">Gallery</Link>
-            <a href="mailto:athulvikram2003@gmail.com" className="hover:text-white transition-colors">Contact</a>
-          </div>
-        </nav>
-
         <AnimatedRoutes />
       </div>
       </Router>
