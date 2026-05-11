@@ -43,6 +43,23 @@ export default function Home() {
   const mountedAsLocked = useRef(!globalAppHasLoaded);
   const [controlsLocked, setControlsLocked] = useState(!globalAppHasLoaded);
   const [showSlowNetwork, setShowSlowNetwork] = useState(false);
+  const [displayProgress, setDisplayProgress] = useState(0);
+
+  useEffect(() => {
+    if (isLoaded) {
+      setDisplayProgress(100);
+      return;
+    }
+    const interval = setInterval(() => {
+      setDisplayProgress(p => {
+        const target = progress === 100 ? 99 : progress;
+        const diff = target - p;
+        if (diff <= 0) return p;
+        return p + Math.max(0.1, diff * 0.05);
+      });
+    }, 50);
+    return () => clearInterval(interval);
+  }, [progress, isLoaded]);
 
   useEffect(() => {
     // If loading takes >8 seconds, show network warning
@@ -211,11 +228,11 @@ export default function Home() {
                 <div className="w-full h-[2px] bg-white/10 rounded-full overflow-hidden">
                    <div 
                      className="h-full bg-purple-500 rounded-full transition-all duration-300 ease-out"
-                     style={{ width: `${progress}%` }}
+                     style={{ width: `${displayProgress}%` }}
                    />
                 </div>
                 <div className="text-zinc-500 font-mono text-[10px] tracking-widest uppercase h-4 flex items-center justify-center">
-                    {showSlowNetwork ? `Loading ${Math.round(progress)}% - Network is slow` : `Loading ${Math.round(progress)}%`}
+                    {showSlowNetwork ? `Loading ${Math.round(displayProgress)}% - Network is slow` : `Loading ${Math.round(displayProgress)}%`}
                 </div>
             </div>
             
