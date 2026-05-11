@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "motion/react";
 import { PROJECTS } from "../data/works";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { ExternalLink, Play, Cpu, Eye, Linkedin, Instagram } from "lucide-react";
+import { ExternalLink, Play, Cpu, Eye, Linkedin, Instagram, Youtube } from "lucide-react";
 import { useProgress } from "@react-three/drei";
 import ModelViewer from "../components/ModelViewer";
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
@@ -341,13 +341,16 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.8 }}
-              className="mt-8 flex gap-6 pointer-events-auto"
+              className="mt-16 flex gap-6 pointer-events-auto"
             >
-              <a href="https://www.linkedin.com/in/athul-vikram-6508a3342?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-[#0A66C2] transition-colors duration-300 p-2 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 hover:border-[#0A66C2]/30 group">
-                <Linkedin className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+              <a href="https://www.linkedin.com/in/athul-vikram-6508a3342?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-[#0A66C2] transition-colors duration-300 p-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 hover:border-[#0A66C2]/30 group">
+                <Linkedin className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
               </a>
-              <a href="https://www.instagram.com/athul_vikram_?igsh=MWhjNHZnb3A3b2M5ZA==" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-[#E1306C] transition-colors duration-300 p-2 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 hover:border-[#E1306C]/30 group">
-                <Instagram className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+              <a href="https://www.instagram.com/athul_vikram_?igsh=MWhjNHZnb3A3b2M5ZA==" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-[#E1306C] transition-colors duration-300 p-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 hover:border-[#E1306C]/30 group">
+                <Instagram className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
+              </a>
+              <a href="https://youtube.com/@chillyeditz7298?si=KWm95HVl8fgt4sB3" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-[#FF0000] transition-colors duration-300 p-3 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 hover:border-[#FF0000]/30 group">
+                <Youtube className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
               </a>
             </motion.div>
             
@@ -361,15 +364,7 @@ export default function Home() {
           {deferredMount && !isMobile && <ModelViewer onLoaded={() => setModelMounted(true)} />}
         </div>
 
-        {/* Scroll Indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className={`absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-zinc-400 pointer-events-none hidden md:block transition-opacity duration-1000 ${drivingMode ? 'opacity-0' : 'opacity-100'}`}
-        >
-          <div className="w-px h-12 bg-gradient-to-b from-purple-400 to-transparent mx-auto" />
-        </motion.div>
+
       </section>
 
       {/* Works Grid */}
