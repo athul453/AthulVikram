@@ -440,7 +440,7 @@ export default function Home() {
         <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-8 self-start md:ml-4 lg:ml-8 flex items-center gap-4 tracking-wider">
           TOOLS
         </h2>
-        <div className="flex flex-nowrap items-center justify-start md:justify-center gap-6 md:gap-10 opacity-80 w-full overflow-x-auto pb-4 scrollbar-hide snap-x">
+        <div className="flex flex-nowrap items-center justify-start md:justify-center gap-6 md:gap-10 opacity-80 w-full overflow-x-auto py-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {[
             { name: 'Claude', src: '/software/claude.png' },
             { name: 'Blender', src: 'https://www.blender.org/wp-content/uploads/2020/07/blender_community_logo_orange.png' },
