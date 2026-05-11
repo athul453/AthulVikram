@@ -290,8 +290,8 @@ export default function Home() {
               <div className="inline-block bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-bold px-4 py-2 rounded-full uppercase tracking-widest backdrop-blur-sm pointer-events-auto">
                 VFX Artist
               </div>
-              <div className="text-zinc-400 text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase pointer-events-auto">
-                AI-Integrated Workflows
+              <div className="text-zinc-400 text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase pointer-events-auto text-center pl-[0.2em]">
+                <span className="text-xs sm:text-sm">AI</span>-Integrated Workflows
               </div>
             </motion.div>
 
