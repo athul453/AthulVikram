@@ -469,7 +469,7 @@ export default function ProjectDetail() {
           </motion.section>
 
           {/* Process Breakdown Carousel Section */}
-          {project.id !== "space-battle" && (
+          {project.id !== "space-battle" ? (
             <motion.section 
               className={`flex flex-col transition-opacity duration-700 flex-1 min-h-0`}
             >
@@ -487,6 +487,14 @@ export default function ProjectDetail() {
                 fallbackThumbnail={project.thumbnail}
                 isBlenderVFX={isBlenderVFX}
               />
+            </motion.section>
+          ) : (
+            <motion.section 
+              className={`flex flex-col transition-opacity duration-700 flex-1 min-h-0`}
+            >
+              <h2 className="text-base md:text-xl font-display font-medium mb-1 md:mb-2 flex items-center gap-2 flex-none pl-1">
+                <Layers className="text-purple-500 w-4 h-4 md:w-6 md:h-6" /> prisma 3d
+              </h2>
             </motion.section>
           )}
       </div>
