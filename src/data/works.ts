@@ -45,7 +45,15 @@ export const PROJECTS: Project[] = [
     breakdownUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     roundupUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     softwares: ["Blender", "Houdini Engine", "Davinci Resolve"],
-    explanation: "A study in procedural growth. The main challenge was maintaining artistic control over the organic shapes while using math-driven animation."
+    explanation: "A study in procedural growth. The main challenge was maintaining artistic control over the organic shapes while using math-driven animation.",
+    finalOutUrls: [
+      "/videos/nature-vfx/Video-755.mp4",
+      "/videos/nature-vfx/0508.mp4"
+    ],
+    breakdownUrls: [
+      "https://www.youtube.com/embed/MMZjW2Nwpdc",
+      "/videos/nature-vfx/Video-526.mp4"
+    ]
   },
   {
     id: "space-battle",
