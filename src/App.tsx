@@ -2,21 +2,30 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate 
 import Home from "./pages/Home";
 import ProjectDetail from "./pages/ProjectDetail";
 import { motion, AnimatePresence } from "motion/react";
-import { ReactLenis } from "lenis/react";
+import { ReactLenis, useLenis } from "lenis/react";
 
 function AnimatedRoutes() {
   const location = useLocation();
   const navigate = useNavigate();
+  const lenis = useLenis();
   const isHome = location.pathname === '/';
   
   const handleGalleryClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (isHome) {
-      document.getElementById('works')?.scrollIntoView({ behavior: 'smooth' });
+      if (lenis) {
+        lenis.scrollTo('#works', { duration: 1.2 });
+      } else {
+        document.getElementById('works')?.scrollIntoView({ behavior: 'smooth' });
+      }
     } else {
       navigate('/');
       setTimeout(() => {
-        document.getElementById('works')?.scrollIntoView({ behavior: 'smooth' });
+        if (lenis) {
+          lenis.scrollTo('#works', { duration: 1.2 });
+        } else {
+          document.getElementById('works')?.scrollIntoView({ behavior: 'smooth' });
+        }
       }, 100);
     }
   };
