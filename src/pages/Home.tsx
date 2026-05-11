@@ -287,23 +287,27 @@ export default function Home() {
               transition={{ duration: 0.8 }}
               className="mb-8 flex flex-col items-center gap-3"
             >
-              <div className="inline-block bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-bold px-4 py-2 rounded-full uppercase tracking-widest backdrop-blur-sm pointer-events-auto">
-                VFX Artist
+              <div className="inline-block bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-bold px-4 py-2 rounded-full uppercase tracking-widest backdrop-blur-sm pointer-events-auto text-center">
+                <span className="pl-[0.1em] inline-block">VFX Artist</span>
               </div>
               <div className="text-zinc-400 text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase pointer-events-auto text-center pl-[0.2em]">
                 <span className="text-xs sm:text-sm">AI</span>-Integrated Workflows
               </div>
             </motion.div>
 
-            {/* Changed to one continuous horizontal flow for the name */}
+            {/* Perfect Center Alignment: Grid forces the gap to sit mathematically on the exact 50% axis */}
             <motion.h1 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.8 }}
-              className="text-5xl md:text-8xl lg:text-[9rem] font-display font-bold tracking-tighter mb-6 leading-none text-white drop-shadow-2xl flex flex-row gap-4 md:gap-8 justify-center"
+              className="text-5xl md:text-8xl lg:text-[9rem] font-display font-bold tracking-tighter mb-6 leading-none text-white drop-shadow-2xl grid grid-cols-2 gap-4 md:gap-8 w-full"
             >
-              <span>ATHUL</span>
-              <span className="text-gradient drop-shadow-2xl">VIKRAM</span>
+              <div className="flex justify-end">
+                <span>ATHUL</span>
+              </div>
+              <div className="flex justify-start">
+                <span className="text-gradient drop-shadow-2xl">VIKRAM</span>
+              </div>
             </motion.h1>
 
             <motion.p 
