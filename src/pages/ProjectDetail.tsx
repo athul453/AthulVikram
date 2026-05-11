@@ -20,7 +20,7 @@ const getThumbnailUrl = (url: string, fallback: string) => {
 };
 
 // Enhanced Local Video Player with Loading State and Fullscreen
-function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobile: boolean; isBlenderVFX?: boolean }) {
+function LocalVideoPlayer({ url, isMobile, isBlenderVFX, force16by9 }: { url: string; isMobile: boolean; isBlenderVFX?: boolean; force16by9?: boolean }) {
   const [isBuffering, setIsBuffering] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -39,7 +39,7 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
   };
 
   return (
-    <div className={`relative w-full h-full flex flex-col items-center justify-center bg-black group overflow-hidden ${isBlenderVFX ? 'aspect-video' : ''}`}>
+    <div className={`relative w-full h-full flex flex-col items-center justify-center bg-black group overflow-hidden ${isBlenderVFX || force16by9 ? 'aspect-video' : ''}`}>
       {isBuffering && (
         <div className={`absolute inset-0 z-10 flex items-center justify-center transition-opacity duration-300 ${isBlenderVFX ? 'bg-black/80 backdrop-blur-md' : 'bg-black/50 backdrop-blur-sm'}`}>
           <Loader2 className="w-10 h-10 text-purple-500 animate-spin" />
@@ -57,7 +57,7 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
         onWaiting={() => setIsBuffering(true)}
         onPlaying={() => setIsBuffering(false)}
         onCanPlayThrough={() => setIsBuffering(false)}
-        className={isBlenderVFX ? "w-full h-full object-contain" : "h-full w-auto max-w-full object-contain"}
+        className={isBlenderVFX || force16by9 ? "w-full h-full object-contain" : "h-full w-auto max-w-full object-contain"}
         controlsList="nodownload"
         onContextMenu={(e) => e.preventDefault()}
       />
@@ -105,9 +105,9 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX }: { url: string; isMobi
   );
 }
 
-function LazyVideoThumbnail({ url, isBlenderVFX, fallbackThumbnail }: { url: string; isBlenderVFX?: boolean; fallbackThumbnail?: string }) {
+function LazyVideoThumbnail({ url, isBlenderVFX, fallbackThumbnail, force16by9 }: { url: string; isBlenderVFX?: boolean; fallbackThumbnail?: string; force16by9?: boolean }) {
   return (
-    <div className={`w-full h-full flex items-center justify-center ${isBlenderVFX ? 'aspect-video' : ''}`}>
+    <div className={`w-full h-full flex items-center justify-center ${isBlenderVFX || force16by9 ? 'aspect-video' : ''}`}>
       <video 
         src={`${url}#t=0.001`}
         className="w-full h-full object-contain pointer-events-none opacity-80"
@@ -120,7 +120,7 @@ function LazyVideoThumbnail({ url, isBlenderVFX, fallbackThumbnail }: { url: str
 }
 
 // Extracted Unified Carousel Component
-function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallbackThumbnail, isBlenderVFX }: { slots: any[], activeIndex: number | null, onSelect: (idx: number) => void, projectTitle: string, fallbackThumbnail: string, isBlenderVFX?: boolean }) {
+function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallbackThumbnail, isBlenderVFX, force16by9 }: { slots: any[], activeIndex: number | null, onSelect: (idx: number) => void, projectTitle: string, fallbackThumbnail: string, isBlenderVFX?: boolean, force16by9?: boolean }) {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -211,7 +211,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                }
             }
           }}
-          className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none snap-center ${isBlenderVFX ? 'aspect-video w-auto' : (isYouTube || !slot.url ? 'aspect-video w-auto' : 'w-auto')} ${unifiedClasses}`}
+          className={`relative flex-none shrink-0 rounded-2xl overflow-hidden shadow-2xl bg-[#0a0a0a] flex flex-col items-center justify-center group select-none snap-center ${isBlenderVFX || force16by9 ? 'aspect-video w-auto' : (isYouTube || !slot.url ? 'aspect-video w-auto' : 'w-auto')} ${unifiedClasses}`}
         >
           {slot.url ? (
             activeIndex === idx ? (
@@ -235,7 +235,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                     title={`${projectTitle} Slot ${idx + 1}`}
                   />
                 ) : (
-                  <LocalVideoPlayer url={slot.url} isMobile={isMobileDevice()} isBlenderVFX={isBlenderVFX} />
+                  <LocalVideoPlayer url={slot.url} isMobile={isMobileDevice()} isBlenderVFX={isBlenderVFX} force16by9={force16by9} />
                 )}
               </>
             ) : (
@@ -248,7 +248,7 @@ function VideoCarouselRow({ slots, activeIndex, onSelect, projectTitle, fallback
                     className="w-full h-full object-cover pointer-events-none opacity-80"
                   />
                 ) : (
-                  <LazyVideoThumbnail url={slot.url} isBlenderVFX={isBlenderVFX} fallbackThumbnail={fallbackThumbnail} />
+                  <LazyVideoThumbnail url={slot.url} isBlenderVFX={isBlenderVFX} fallbackThumbnail={fallbackThumbnail} force16by9={force16by9} />
                 )}
                 <div className={`absolute inset-0 z-30 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all ${isBlenderVFX ? 'pointer-events-none' : 'pointer-events-none'}`}>
                    <div 
@@ -465,6 +465,7 @@ export default function ProjectDetail() {
               projectTitle={project.title} 
               fallbackThumbnail={project.thumbnail}
               isBlenderVFX={isBlenderVFX}
+              force16by9={project.id === "nature-vfx"}
             />
           </motion.section>
 
@@ -490,6 +491,7 @@ export default function ProjectDetail() {
                 projectTitle={project.title} 
                 fallbackThumbnail={project.thumbnail}
                 isBlenderVFX={isBlenderVFX}
+                force16by9={project.id === "nature-vfx"}
               />
             </motion.section>
           ) : (
