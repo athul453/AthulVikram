@@ -435,8 +435,41 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Software Tools */}
+      <section className="py-10 px-6 max-w-5xl mx-auto">
+        <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-80">
+          {[
+            { name: 'Claude', src: '/software/claude.png' },
+            { name: 'Blender', src: '/software/blender.png' },
+            { name: 'After Effects', src: '/software/ae.svg' },
+            { name: 'Prisma 3D', src: '/software/prisma3d.png' },
+            { name: 'Mocha Pro', src: '/software/mocha.png' },
+            { name: 'KineMaster', src: '/software/kinemaster.png' },
+            { name: 'Picsart', src: '/software/picsart.png' },
+            { name: 'CapCut', src: 'https://static.vecteezy.com/system/resources/previews/013/948/546/non_2x/capcut-logo-on-transparent-white-background-free-vector.jpg' },
+            { name: 'InShot', src: '/software/inshot.png' },
+            { name: 'SynthEyes Pro', src: 'https://img.taiwebs.com/wp-content/uploads/2022/07/Syntheyes-Pro-1.png' }
+          ].map((tool) => (
+            <img 
+              key={tool.name}
+              src={tool.src}
+              alt={tool.name}
+              title={tool.name}
+              onError={(e) => {
+                if (tool.name === 'SynthEyes Pro') {
+                  e.currentTarget.src = 'https://images.g2crowd.com/uploads/product/image/large_detail/large_detail_32fcfa082181741f237eb872be9c3fcf/syntheyes.png';
+                } else if (tool.name === 'CapCut') {
+                  e.currentTarget.src = 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Capcut_logo.png';
+                }
+              }}
+              className="w-12 h-12 md:w-16 md:h-16 object-contain drop-shadow-lg hover:scale-110 transition-transform duration-300 rounded-xl"
+            />
+          ))}
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="py-20 border-t border-white/5 px-6 text-center">
+      <footer className="py-10 border-t border-white/5 px-6 text-center">
         <p className="text-zinc-600 text-sm">
           &copy; 2026 Athul Vikram. Built with Passion & Blender.
         </p>
