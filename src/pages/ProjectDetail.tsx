@@ -453,7 +453,7 @@ export default function ProjectDetail() {
             className={`flex flex-col transition-opacity duration-700 flex-1 min-h-0`}
           >
             <h2 className="text-base md:text-xl font-display font-medium mb-1 md:mb-2 flex items-center gap-2 flex-none pl-1">
-              <Play className="text-purple-500 w-4 h-4 md:w-6 md:h-6" /> Final Render
+              <Play className="text-purple-500 w-4 h-4 md:w-6 md:h-6" /> {project.id === "nature-vfx" ? "Blender CGI" : "Final Render"}
             </h2>
             <VideoCarouselRow 
               slots={carouselSlots} 
@@ -474,7 +474,7 @@ export default function ProjectDetail() {
               className={`flex flex-col transition-opacity duration-700 flex-1 min-h-0`}
             >
               <h2 className="text-base md:text-xl font-display font-medium mb-1 md:mb-2 flex items-center gap-2 flex-none pl-1">
-                <Layers className="text-purple-500 w-4 h-4 md:w-6 md:h-6" /> Process Breakdown
+                <Layers className="text-purple-500 w-4 h-4 md:w-6 md:h-6" /> {project.id === "nature-vfx" ? "Blender Animation" : "Process Breakdown"}
               </h2>
               <VideoCarouselRow 
                 slots={breakdownSlots} 
