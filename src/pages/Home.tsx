@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "motion/react";
 import { PROJECTS } from "../data/works";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { ExternalLink, Play, Cpu, Eye } from "lucide-react";
+import { ExternalLink, Play, Cpu, Eye, Linkedin, Instagram } from "lucide-react";
 import { useProgress } from "@react-three/drei";
 import ModelViewer from "../components/ModelViewer";
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
@@ -336,6 +336,20 @@ export default function Home() {
               Crafting immersive digital worlds and cinematic visual effects using 
               <span className="text-white font-bold"> Blender</span> and industry-standard tools.
             </motion.p>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.8 }}
+              className="mt-8 flex gap-6 pointer-events-auto"
+            >
+              <a href="https://www.linkedin.com/in/athul-vikram-6508a3342?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-[#0A66C2] transition-colors duration-300 p-2 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 hover:border-[#0A66C2]/30 group">
+                <Linkedin className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+              </a>
+              <a href="https://www.instagram.com/athul_vikram_?igsh=MWhjNHZnb3A3b2M5ZA==" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-[#E1306C] transition-colors duration-300 p-2 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 hover:border-[#E1306C]/30 group">
+                <Instagram className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+              </a>
+            </motion.div>
             
         </div>
 
