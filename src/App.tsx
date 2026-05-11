@@ -70,7 +70,7 @@ function AnimatedRoutes() {
                 >
                   <div className="flex flex-col">
                     <span className="text-[10px] text-zinc-500 uppercase tracking-widest mb-1.5 font-bold">Email</span>
-                    <a href="mailto:athulvikram012@gmail.com" className="text-sm text-zinc-300 hover:text-white transition-colors font-medium break-all">
+                    <a href="mailto:athulvikram012@gmail.com" className="text-sm text-zinc-300 hover:text-white transition-colors font-medium break-all lowercase">
                       athulvikram012@gmail.com
                     </a>
                   </div>
