@@ -282,13 +282,16 @@ export default function Home() {
         {/* Typography Content (Centered) */}
         <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-10 pointer-events-none transition-opacity duration-1000 ${drivingMode ? 'opacity-0' : 'opacity-100'}`}>
             <motion.div
-              initial={{ opacity: 0, y: -30 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: -45 }}
+              animate={{ opacity: 1, y: -15 }}
               transition={{ duration: 0.8 }}
-              className="mb-8"
+              className="mb-8 flex flex-col items-center gap-3"
             >
               <div className="inline-block bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-bold px-4 py-2 rounded-full uppercase tracking-widest backdrop-blur-sm pointer-events-auto">
                 VFX Artist
+              </div>
+              <div className="text-zinc-400 text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase pointer-events-auto">
+                AI-Integrated Workflows
               </div>
             </motion.div>
 
