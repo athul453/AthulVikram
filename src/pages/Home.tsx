@@ -447,11 +447,11 @@ export default function Home() {
             { name: 'After Effects', src: '/software/ae.svg' },
             { name: 'Prisma 3D', src: '/software/prisma3d.png' },
             { name: 'Mocha Pro', src: '/software/mocha.png' },
+            { name: 'SynthEyes Pro', src: 'https://pbs.twimg.com/profile_images/1805688202503565312/v_J2zyzA_400x400.png' },
             { name: 'KineMaster', src: '/software/kinemaster.png' },
             { name: 'Picsart', src: '/software/picsart.png' },
             { name: 'CapCut', src: 'https://static.vecteezy.com/system/resources/previews/013/948/546/non_2x/capcut-logo-on-transparent-white-background-free-vector.jpg' },
-            { name: 'InShot', src: '/software/inshot.png' },
-            { name: 'SynthEyes Pro', src: 'https://img.taiwebs.com/wp-content/uploads/2022/07/Syntheyes-Pro-1.png' }
+            { name: 'InShot', src: '/software/inshot.png' }
           ].map((tool) => (
             <img 
               key={tool.name}
@@ -459,9 +459,7 @@ export default function Home() {
               alt={tool.name}
               title={tool.name}
               onError={(e) => {
-                if (tool.name === 'SynthEyes Pro') {
-                  e.currentTarget.src = 'https://images.g2crowd.com/uploads/product/image/large_detail/large_detail_32fcfa082181741f237eb872be9c3fcf/syntheyes.png';
-                } else if (tool.name === 'CapCut') {
+                if (tool.name === 'CapCut') {
                   e.currentTarget.src = 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Capcut_logo.png';
                 }
               }}
