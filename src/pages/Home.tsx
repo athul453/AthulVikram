@@ -440,7 +440,7 @@ export default function Home() {
         <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-8 self-start md:ml-4 lg:ml-8 flex items-center gap-4 tracking-wider">
           TOOLS
         </h2>
-        <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-80">
+        <div className="flex flex-nowrap items-center justify-start md:justify-center gap-6 md:gap-10 opacity-80 w-full overflow-x-auto pb-4 scrollbar-hide snap-x">
           {[
             { name: 'Claude', src: '/software/claude.png' },
             { name: 'Blender', src: 'https://www.blender.org/wp-content/uploads/2020/07/blender_community_logo_orange.png' },
@@ -463,7 +463,7 @@ export default function Home() {
                   e.currentTarget.src = 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Capcut_logo.png';
                 }
               }}
-              className="w-12 h-12 md:w-16 md:h-16 aspect-square object-contain drop-shadow-lg hover:scale-110 transition-transform duration-300 rounded-xl"
+              className="w-12 h-12 md:w-16 md:h-16 shrink-0 aspect-square object-contain drop-shadow-lg hover:scale-110 transition-transform duration-300 rounded-xl"
             />
           ))}
         </div>
