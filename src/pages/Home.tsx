@@ -446,6 +446,7 @@ export default function Home() {
             { name: 'Blender', src: 'https://www.blender.org/wp-content/uploads/2020/07/blender_community_logo_orange.png' },
             { name: 'After Effects', src: '/software/ae.svg' },
             { name: 'Prisma 3D', src: '/software/prisma3d.png' },
+            { name: 'Substance Painter', src: 'https://static.vecteezy.com/system/resources/previews/065/738/857/non_2x/adobe-substance-3d-painter-icon-app-logo-editable-premium-social-media-design-for-digital-download-free-vector.jpg' },
             { name: 'Mocha Pro', src: '/software/mocha.png' },
             { name: 'SynthEyes Pro', src: 'https://pbs.twimg.com/profile_images/1805688202503565312/v_J2zyzA_400x400.png' },
             { name: 'KineMaster', src: '/software/kinemaster.png' },
