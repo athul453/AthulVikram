@@ -440,7 +440,7 @@ export default function Home() {
         <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-8 self-start md:ml-4 lg:ml-8 flex items-center gap-4 tracking-wider">
           TOOLS
         </h2>
-        <div className="flex flex-nowrap items-center justify-start md:justify-center gap-6 md:gap-10 opacity-80 w-full overflow-x-auto py-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="flex flex-nowrap items-center justify-start md:justify-center gap-4 md:gap-5 opacity-80 w-full overflow-x-auto py-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {[
             { name: 'Claude', src: '/software/claude.png' },
             { name: 'Blender', src: 'https://www.blender.org/wp-content/uploads/2020/07/blender_community_logo_orange.png' },
@@ -454,8 +454,8 @@ export default function Home() {
             { name: 'CapCut', src: 'https://static.vecteezy.com/system/resources/previews/013/948/546/non_2x/capcut-logo-on-transparent-white-background-free-vector.jpg' },
             { name: 'InShot', src: '/software/inshot.png' }
           ].map((tool) => (
-            <div key={tool.name} className="flex flex-col items-center gap-3 group shrink-0 cursor-pointer">
-              <div className="p-3 md:p-4 bg-white/5 group-hover:bg-white/10 rounded-full border border-white/5 group-hover:border-white/20 transition-colors duration-300 flex items-center justify-center">
+            <div key={tool.name} className="flex flex-col items-center gap-2 group shrink-0 cursor-pointer">
+              <div className="p-2 md:p-3 bg-white/5 group-hover:bg-white/10 rounded-full border border-white/5 group-hover:border-white/20 transition-colors duration-300 flex items-center justify-center">
                 <img 
                   src={tool.src}
                   alt={tool.name}
@@ -465,10 +465,10 @@ export default function Home() {
                       e.currentTarget.src = 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Capcut_logo.png';
                     }
                   }}
-                  className="w-6 h-6 md:w-8 md:h-8 object-contain drop-shadow-lg opacity-60 grayscale group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300 rounded-lg"
+                  className="w-5 h-5 md:w-6 md:h-6 object-contain drop-shadow-lg opacity-60 grayscale group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300 rounded-md"
                 />
               </div>
-              <span className="text-[9px] md:text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors duration-300 text-center uppercase tracking-widest font-bold">
+              <span className="text-[8px] md:text-[9px] text-zinc-500 group-hover:text-zinc-300 transition-colors duration-300 text-center uppercase tracking-widest font-bold">
                 {tool.name}
               </span>
             </div>
