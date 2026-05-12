@@ -454,18 +454,24 @@ export default function Home() {
             { name: 'CapCut', src: 'https://static.vecteezy.com/system/resources/previews/013/948/546/non_2x/capcut-logo-on-transparent-white-background-free-vector.jpg' },
             { name: 'InShot', src: '/software/inshot.png' }
           ].map((tool) => (
-            <img 
-              key={tool.name}
-              src={tool.src}
-              alt={tool.name}
-              title={tool.name}
-              onError={(e) => {
-                if (tool.name === 'CapCut') {
-                  e.currentTarget.src = 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Capcut_logo.png';
-                }
-              }}
-              className="w-10 h-10 md:w-12 md:h-12 shrink-0 aspect-square object-contain drop-shadow-lg hover:scale-110 transition-transform duration-300 rounded-xl"
-            />
+            <div key={tool.name} className="flex flex-col items-center gap-3 group shrink-0 cursor-pointer">
+              <div className="p-3 md:p-4 bg-white/5 group-hover:bg-white/10 rounded-full border border-white/5 group-hover:border-white/20 transition-colors duration-300 flex items-center justify-center">
+                <img 
+                  src={tool.src}
+                  alt={tool.name}
+                  title={tool.name}
+                  onError={(e) => {
+                    if (tool.name === 'CapCut') {
+                      e.currentTarget.src = 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Capcut_logo.png';
+                    }
+                  }}
+                  className="w-6 h-6 md:w-8 md:h-8 object-contain drop-shadow-lg opacity-60 grayscale group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300 rounded-lg"
+                />
+              </div>
+              <span className="text-[9px] md:text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors duration-300 text-center uppercase tracking-widest font-bold">
+                {tool.name}
+              </span>
+            </div>
           ))}
         </div>
       </section>
