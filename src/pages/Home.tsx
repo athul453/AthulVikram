@@ -440,7 +440,7 @@ export default function Home() {
         <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-8 self-start md:ml-4 lg:ml-8 flex items-center gap-4 tracking-wider">
           TOOLS
         </h2>
-        <div className="flex flex-nowrap items-center justify-start md:justify-center gap-4 md:gap-5 opacity-80 w-full overflow-x-auto py-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="flex flex-nowrap items-center justify-start md:justify-center gap-2 md:gap-4 opacity-80 w-full overflow-x-auto py-4 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {[
             { name: 'Claude', src: '/software/claude.png' },
             { name: 'Blender', src: 'https://www.blender.org/wp-content/uploads/2020/07/blender_community_logo_orange.png' },
@@ -468,7 +468,7 @@ export default function Home() {
                   className="w-5 h-5 md:w-6 md:h-6 object-contain drop-shadow-lg opacity-60 grayscale group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300 rounded-md"
                 />
               </div>
-              <span className="text-[8px] md:text-[9px] text-zinc-500 group-hover:text-zinc-300 transition-colors duration-300 text-center uppercase tracking-widest font-bold">
+              <span className="text-[7px] md:text-[8px] text-zinc-500 group-hover:text-zinc-300 transition-colors duration-300 text-center uppercase tracking-widest font-bold select-none max-w-[50px] md:max-w-[60px] whitespace-normal leading-tight">
                 {tool.name}
               </span>
             </div>
