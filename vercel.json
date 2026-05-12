@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "athulvikram.vercel.app"
+        }
+      ],
+      "destination": "https://athulvikram.com/$1",
+      "permanent": true
+    }
+  ]
+}
