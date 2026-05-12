@@ -463,7 +463,7 @@ export default function Home() {
                   e.currentTarget.src = 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Capcut_logo.png';
                 }
               }}
-              className="w-12 h-12 md:w-16 md:h-16 shrink-0 aspect-square object-contain drop-shadow-lg hover:scale-110 transition-transform duration-300 rounded-xl"
+              className="w-10 h-10 md:w-12 md:h-12 shrink-0 aspect-square object-contain drop-shadow-lg hover:scale-110 transition-transform duration-300 rounded-xl"
             />
           ))}
         </div>
