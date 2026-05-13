@@ -48,6 +48,7 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX, force16by9 }: { url: st
       <video
         ref={videoRef}
         src={url}
+        poster={url.replace(/\.(mp4|webm)$/, '.jpg')}
         autoPlay={true}
         controls={true}
         playsInline
@@ -107,15 +108,14 @@ function LocalVideoPlayer({ url, isMobile, isBlenderVFX, force16by9 }: { url: st
 }
 
 function LazyVideoThumbnail({ url, isBlenderVFX, fallbackThumbnail, force16by9 }: { url: string; isBlenderVFX?: boolean; fallbackThumbnail?: string; force16by9?: boolean }) {
+  const posterUrl = url.replace(/\.(mp4|webm)$/, '.jpg');
   return (
     <div className={`w-full h-full flex items-center justify-center ${isBlenderVFX || force16by9 ? 'aspect-video' : ''}`}>
-      <video 
-        src={`${url}#t=0.001`}
+      <img 
+        src={posterUrl}
         className="w-full h-full object-contain pointer-events-none opacity-80"
         style={url.includes("Video-526.mp4") ? { transform: "rotate(-90deg) scale(1.7778)" } : undefined}
-        preload="metadata"
-        muted
-        playsInline
+        alt="Video Thumbnail"
       />
     </div>
   );

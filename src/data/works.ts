@@ -24,16 +24,16 @@ export const PROJECTS: Project[] = [
     softwares: ["Blender", "After Effects", "Substance Painter"],
     explanation: "This project focused on creating a dense, lived-in urban environment. I used geometry nodes for building generation and custom shaders for the neon signs.",
     finalOutUrls: [
-      "/videos/blender-vfx/InShot_20260216_135416043.webm",
-      "/videos/blender-vfx/final out.webm",
-      "/videos/blender-vfx/car.webm",
-      "/videos/blender-vfx/egal or.webm",
+      "/videos/blender-vfx/InShot_20260216_135416043.mp4",
+      "/videos/blender-vfx/final out.mp4",
+      "/videos/blender-vfx/car.mp4",
+      "/videos/blender-vfx/egal or.mp4",
     ],
     breakdownUrls: [
-      "/videos/blender-vfx/gb sank.webm",
-      "/videos/blender-vfx/0426 (1).webm",
-      "/videos/blender-vfx/bg car.webm",
-      "/videos/blender-vfx/0426 (5).webm",
+      "/videos/blender-vfx/gb sank.mp4",
+      "/videos/blender-vfx/0426 (1).mp4",
+      "/videos/blender-vfx/bg car.mp4",
+      "/videos/blender-vfx/0426 (5).mp4",
     ]
   },
   {
