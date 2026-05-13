@@ -48,7 +48,8 @@ export const PROJECTS: Project[] = [
     explanation: "A study in procedural growth. The main challenge was maintaining artistic control over the organic shapes while using math-driven animation.",
     finalOutUrls: [
       "/videos/nature-vfx/Video-755.mp4",
-      "/videos/nature-vfx/0508.mp4"
+      "/videos/nature-vfx/0512(1).mp4",
+      "/videos/nature-vfx/0508(1).mp4"
     ],
     breakdownUrls: [
       "https://www.youtube.com/embed/MMZjW2Nwpdc",
